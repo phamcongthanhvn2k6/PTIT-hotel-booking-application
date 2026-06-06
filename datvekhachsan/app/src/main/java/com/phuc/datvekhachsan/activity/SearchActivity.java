@@ -16,8 +16,9 @@ import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.phuc.datvekhachsan.R;
 import com.phuc.datvekhachsan.adapter.HotelListAdapter;
-import com.phuc.datvekhachsan.data.MockData;
 import com.phuc.datvekhachsan.model.Hotel;
+import com.phuc.datvekhachsan.network.ApiService;
+import com.phuc.datvekhachsan.network.RetrofitClient;
 import com.phuc.datvekhachsan.util.SearchEngine;
 
 import java.util.ArrayList;
@@ -39,6 +40,7 @@ public class SearchActivity extends AppCompatActivity {
     private HotelListAdapter adapter;
     private final Handler handler = new Handler();
     private Runnable searchTask;
+    private List<Hotel> allHotels = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,28 +68,41 @@ public class SearchActivity extends AppCompatActivity {
             clearSearchBtn.setVisibility(View.GONE);
         });
 
-        setupFilters();
-        setupSearch();
+        // Fetch all hotels first, then setup filters and search
+        ApiService apiService = RetrofitClient.getClient(this).create(ApiService.class);
+        apiService.getHotels().enqueue(new retrofit2.Callback<List<Hotel>>() {
+            @Override
+            public void onResponse(retrofit2.Call<List<Hotel>> call, retrofit2.Response<List<Hotel>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    allHotels = response.body();
+                    setupFilters();
+                    setupSearch();
+                    
+                    String initialQuery = getIntent().getStringExtra("query");
+                    if (initialQuery != null) {
+                        searchInput.setText(initialQuery);
+                        clearSearchBtn.setVisibility(initialQuery.isEmpty() ? View.GONE : View.VISIBLE);
+                    }
+                    runSearch();
+                } else {
+                    android.widget.Toast.makeText(SearchActivity.this, "Không tải được dữ liệu", android.widget.Toast.LENGTH_SHORT).show();
+                }
+            }
 
-        // Read query from intent extra
-        String initialQuery = getIntent().getStringExtra("query");
-        if (initialQuery != null) {
-            searchInput.setText(initialQuery);
-            clearSearchBtn.setVisibility(initialQuery.isEmpty() ? View.GONE : View.VISIBLE);
-        }
-
-        runSearch();
+            @Override
+            public void onFailure(retrofit2.Call<List<Hotel>> call, Throwable t) {
+                android.widget.Toast.makeText(SearchActivity.this, "Lỗi kết nối", android.widget.Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void setupFilters() {
+        chipGroupLocation.removeAllViews();
         // 1. Locations Chips
         List<String> locs = new ArrayList<>();
         locs.add("Tất cả");
         Set<String> seen = new HashSet<>();
-        for (Hotel h : MockData.getPopularHotels()) {
-            if (seen.add(h.getLocation())) locs.add(h.getLocation());
-        }
-        for (Hotel h : MockData.getRecommendedHotels()) {
+        for (Hotel h : allHotels) {
             if (seen.add(h.getLocation())) locs.add(h.getLocation());
         }
 
@@ -221,7 +236,7 @@ public class SearchActivity extends AppCompatActivity {
             }
         }
 
-        List<Hotel> results = SearchEngine.search(query, location, minPrice, maxPrice, minRating, sortSel);
+        List<Hotel> results = SearchEngine.search(allHotels, query, location, minPrice, maxPrice, minRating, sortSel);
         
         // Show/hide empty state
         if (results.isEmpty()) {

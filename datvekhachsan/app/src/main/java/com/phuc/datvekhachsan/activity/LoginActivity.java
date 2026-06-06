@@ -1,5 +1,4 @@
 package com.phuc.datvekhachsan.activity;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.WindowManager;
@@ -8,8 +7,9 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.gson.JsonObject;
 import com.phuc.datvekhachsan.R;
-import com.phuc.datvekhachsan.data.MockData;
+import com.phuc.datvekhachsan.network.ApiService;
 import com.phuc.datvekhachsan.model.User;
 
 public class LoginActivity extends AppCompatActivity {
@@ -33,15 +33,43 @@ public class LoginActivity extends AppCompatActivity {
                 return;
             }
 
-            User user = MockData.checkLogin(username, password);
-            if (user != null) {
-                com.phuc.datvekhachsan.util.AuthManager.login(this, user);
-                Toast.makeText(this, "Đăng nhập thành công, chào " + user.getFullName(), Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                finish();
-            } else {
-                Toast.makeText(this, "Sai tên đăng nhập hoặc mật khẩu", Toast.LENGTH_SHORT).show();
-            }
+            JsonObject request = new JsonObject();
+            request.addProperty("username", username);
+            request.addProperty("password", password);
+
+            com.phuc.datvekhachsan.network.ApiService apiService = 
+                com.phuc.datvekhachsan.network.RetrofitClient.getClient(this).create(com.phuc.datvekhachsan.network.ApiService.class);
+            
+            apiService.login(request).enqueue(new retrofit2.Callback<JsonObject>() {
+                @Override
+                public void onResponse(retrofit2.Call<JsonObject> call, retrofit2.Response<JsonObject> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        JsonObject body = response.body();
+                        if (body.has("token")) {
+                            String token = body.get("token").getAsString();
+                            
+                            // Lưu Token vào SharedPreferences
+                            android.content.SharedPreferences prefs = getSharedPreferences("app_prefs", MODE_PRIVATE);
+                            prefs.edit().putString("jwt_token", token).apply();
+
+                            User user = new User(username, "", "USER", "");
+                            com.phuc.datvekhachsan.util.AuthManager.login(LoginActivity.this, user);
+                            Toast.makeText(LoginActivity.this, "Đăng nhập thành công", Toast.LENGTH_SHORT).show();
+                            startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                            finish();
+                        } else {
+                            Toast.makeText(LoginActivity.this, "Đăng nhập thất bại", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(LoginActivity.this, "Sai tên đăng nhập hoặc mật khẩu", Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(retrofit2.Call<JsonObject> call, Throwable t) {
+                    Toast.makeText(LoginActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
         });
 
         findViewById(R.id.goToRegisterTxt).setOnClickListener(v -> {

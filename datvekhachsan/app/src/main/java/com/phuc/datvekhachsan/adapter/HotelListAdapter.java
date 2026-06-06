@@ -8,6 +8,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -47,7 +49,16 @@ public class HotelListAdapter extends RecyclerView.Adapter<HotelListAdapter.View
         }
 
         void bind(Hotel hotel) {
-            hotelImage.setImageResource(hotel.getImageResId());
+            if (hotel.getImageUrl() != null && !hotel.getImageUrl().isEmpty()) {
+                Glide.with(itemView.getContext())
+                        .load(hotel.getImageUrl())
+                        .placeholder(R.drawable.hotel_intro)
+                        .into(hotelImage);
+            } else if (hotel.getImageResId() != 0) {
+                hotelImage.setImageResource(hotel.getImageResId());
+            } else {
+                hotelImage.setImageResource(R.drawable.hotel_intro);
+            }
             hotelNameTxt.setText(hotel.getName());
             locationTxt.setText(itemView.getContext().getString(R.string.location_with_pin, hotel.getLocation()));
             ratingTxt.setText(String.valueOf(hotel.getRating()));

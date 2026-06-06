@@ -1,6 +1,5 @@
 package com.phuc.datvekhachsan.util;
 
-import com.phuc.datvekhachsan.data.MockData;
 import com.phuc.datvekhachsan.model.Hotel;
 
 import java.util.ArrayList;
@@ -14,13 +13,7 @@ import java.util.Set;
 public final class SearchEngine {
     private SearchEngine() {}
 
-    public static List<Hotel> search(String query, String locationFilter, double minPrice, double maxPrice, double minRating, String sort) {
-        List<Hotel> all = new ArrayList<>(MockData.getPopularHotels());
-        all.addAll(MockData.getRecommendedHotels());
-        return searchList(all, query, locationFilter, minPrice, maxPrice, minRating, sort);
-    }
-
-    public static List<Hotel> searchList(List<Hotel> baseList, String query, String locationFilter, double minPrice, double maxPrice, double minRating, String sort) {
+    public static List<Hotel> search(List<Hotel> baseList, String query, String locationFilter, double minPrice, double maxPrice, double minRating, String sort) {
         String q = (query == null) ? "" : query.trim().toLowerCase(Locale.ROOT);
         List<HotelMatch> matches = new ArrayList<>();
 

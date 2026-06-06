@@ -11,7 +11,23 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.phuc.datvekhachsan.adapter.BannerAdapter;
 import com.phuc.datvekhachsan.adapter.HotelListAdapter;
 import com.phuc.datvekhachsan.R;
-import com.phuc.datvekhachsan.data.MockData;
+import com.phuc.datvekhachsan.model.Hotel;
+import com.phuc.datvekhachsan.model.SliderItem;
+import com.phuc.datvekhachsan.network.ApiService;
+import com.phuc.datvekhachsan.network.RetrofitClient;
+import android.widget.Toast;
+
+import java.util.ArrayList;
+import com.phuc.datvekhachsan.model.Hotel;
+import com.phuc.datvekhachsan.network.ApiService;
+import com.phuc.datvekhachsan.network.RetrofitClient;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -85,7 +101,13 @@ public class MainActivity extends AppCompatActivity {
         RecyclerView bannerRecyclerView = findViewById(R.id.bannerRecyclerView);
         bannerRecyclerView.setLayoutManager(
                 new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        bannerRecyclerView.setAdapter(new BannerAdapter(MockData.getBanners()));
+        
+        List<SliderItem> banners = new ArrayList<>();
+        banners.add(new SliderItem(R.drawable.hotel));
+        banners.add(new SliderItem(R.drawable.hotel));
+        banners.add(new SliderItem(R.drawable.hotel));
+        
+        bannerRecyclerView.setAdapter(new BannerAdapter(banners));
         findViewById(R.id.progressBarSlider).setVisibility(View.GONE);
     }
 
@@ -93,8 +115,30 @@ public class MainActivity extends AppCompatActivity {
         RecyclerView recyclerView = findViewById(R.id.recyclerViewPopularHotels);
         recyclerView.setLayoutManager(
                 new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        recyclerView.setAdapter(new HotelListAdapter(MockData.getPopularHotels()));
-        findViewById(R.id.progressBarPopular).setVisibility(View.GONE);
+                
+        ApiService apiService = RetrofitClient.getClient(this).create(ApiService.class);
+        apiService.getHotels().enqueue(new Callback<List<Hotel>>() {
+            @Override
+            public void onResponse(Call<List<Hotel>> call, Response<List<Hotel>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<Hotel> popularHotels = response.body().stream()
+                            .filter(h -> h.getRating() >= 4.5)
+                            .limit(5)
+                            .collect(Collectors.toList());
+                    if (popularHotels.isEmpty()) popularHotels = response.body();
+                    recyclerView.setAdapter(new HotelListAdapter(popularHotels));
+                } else {
+                    Toast.makeText(MainActivity.this, "Không thể tải danh sách khách sạn phổ biến", Toast.LENGTH_SHORT).show();
+                }
+                findViewById(R.id.progressBarPopular).setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onFailure(Call<List<Hotel>> call, Throwable t) {
+                Toast.makeText(MainActivity.this, "Lỗi kết nối khi tải khách sạn phổ biến", Toast.LENGTH_SHORT).show();
+                findViewById(R.id.progressBarPopular).setVisibility(View.GONE);
+            }
+        });
 
         findViewById(R.id.btnViewAllPopular).setOnClickListener(v -> {
             android.content.Intent intent = new android.content.Intent(MainActivity.this, HotelListActivity.class);
@@ -107,8 +151,30 @@ public class MainActivity extends AppCompatActivity {
         RecyclerView recyclerView = findViewById(R.id.recyclerViewRecommended);
         recyclerView.setLayoutManager(
                 new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        recyclerView.setAdapter(new HotelListAdapter(MockData.getRecommendedHotels()));
-        findViewById(R.id.progressBarRecommended).setVisibility(View.GONE);
+                
+        ApiService apiService = RetrofitClient.getClient(this).create(ApiService.class);
+        apiService.getHotels().enqueue(new Callback<List<Hotel>>() {
+            @Override
+            public void onResponse(Call<List<Hotel>> call, Response<List<Hotel>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<Hotel> recommendedHotels = response.body().stream()
+                            .filter(h -> h.getPricePerNight() < 2000000)
+                            .limit(5)
+                            .collect(Collectors.toList());
+                    if (recommendedHotels.isEmpty()) recommendedHotels = response.body();
+                    recyclerView.setAdapter(new HotelListAdapter(recommendedHotels));
+                } else {
+                    Toast.makeText(MainActivity.this, "Không thể tải danh sách khách sạn đề xuất", Toast.LENGTH_SHORT).show();
+                }
+                findViewById(R.id.progressBarRecommended).setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onFailure(Call<List<Hotel>> call, Throwable t) {
+                Toast.makeText(MainActivity.this, "Lỗi kết nối khi tải khách sạn đề xuất", Toast.LENGTH_SHORT).show();
+                findViewById(R.id.progressBarRecommended).setVisibility(View.GONE);
+            }
+        });
 
         findViewById(R.id.btnViewAllRecommended).setOnClickListener(v -> {
             android.content.Intent intent = new android.content.Intent(MainActivity.this, HotelListActivity.class);

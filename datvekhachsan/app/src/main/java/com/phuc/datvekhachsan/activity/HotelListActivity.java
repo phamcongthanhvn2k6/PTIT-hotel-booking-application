@@ -13,9 +13,20 @@ import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 import com.phuc.datvekhachsan.R;
 import com.phuc.datvekhachsan.adapter.HotelListAdapter;
-import com.phuc.datvekhachsan.data.MockData;
 import com.phuc.datvekhachsan.model.Hotel;
+import com.phuc.datvekhachsan.network.ApiService;
+import com.phuc.datvekhachsan.network.RetrofitClient;
 import com.phuc.datvekhachsan.util.SearchEngine;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -53,21 +64,71 @@ public class HotelListActivity extends AppCompatActivity {
         emptyStateLayout = findViewById(R.id.emptyStateLayout);
 
         String type = getIntent().getStringExtra("type");
-        if ("popular".equals(type)) {
-            tvListTitle.setText(R.string.hotel_list_title_popular);
-            baseHotels = MockData.getPopularHotels();
-        } else if ("search".equals(type)) {
+        ApiService apiService = RetrofitClient.getClient(this).create(ApiService.class);
+
+        if ("search".equals(type)) {
             String query = getIntent().getStringExtra("query");
             tvListTitle.setText(getString(R.string.hotel_list_title_search_result, query));
-            baseHotels = MockData.searchHotels(query != null ? query : "");
-        } else {
-            tvListTitle.setText(R.string.hotel_list_title_recommended);
-            baseHotels = MockData.getRecommendedHotels();
-        }
+            apiService.searchHotels(query != null ? query : "").enqueue(new Callback<List<Hotel>>() {
+                @Override
+                public void onResponse(Call<List<Hotel>> call, Response<List<Hotel>> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        baseHotels = response.body();
+                    } else {
+                        android.widget.Toast.makeText(HotelListActivity.this, "Không tìm thấy kết quả", android.widget.Toast.LENGTH_SHORT).show();
+                        baseHotels = new ArrayList<>();
+                    }
+                    onDataLoaded();
+                }
 
+                @Override
+                public void onFailure(Call<List<Hotel>> call, Throwable t) {
+                    android.widget.Toast.makeText(HotelListActivity.this, "Lỗi kết nối", android.widget.Toast.LENGTH_SHORT).show();
+                    baseHotels = new ArrayList<>();
+                    onDataLoaded();
+                }
+            });
+        } else {
+            if ("popular".equals(type)) {
+                tvListTitle.setText(R.string.hotel_list_title_popular);
+            } else {
+                tvListTitle.setText(R.string.hotel_list_title_recommended);
+            }
+            apiService.getHotels().enqueue(new Callback<List<Hotel>>() {
+                @Override
+                public void onResponse(Call<List<Hotel>> call, Response<List<Hotel>> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        if ("popular".equals(type)) {
+                            baseHotels = response.body().stream()
+                                    .filter(h -> h.getRating() >= 4.5)
+                                    .collect(Collectors.toList());
+                            if (baseHotels.isEmpty()) baseHotels = response.body();
+                        } else {
+                            baseHotels = response.body().stream()
+                                    .filter(h -> h.getPricePerNight() < 2000000)
+                                    .collect(Collectors.toList());
+                            if (baseHotels.isEmpty()) baseHotels = response.body();
+                        }
+                    } else {
+                        android.widget.Toast.makeText(HotelListActivity.this, "Không tải được dữ liệu", android.widget.Toast.LENGTH_SHORT).show();
+                        baseHotels = new ArrayList<>();
+                    }
+                    onDataLoaded();
+                }
+
+                @Override
+                public void onFailure(Call<List<Hotel>> call, Throwable t) {
+                    android.widget.Toast.makeText(HotelListActivity.this, "Lỗi kết nối", android.widget.Toast.LENGTH_SHORT).show();
+                    baseHotels = new ArrayList<>();
+                    onDataLoaded();
+                }
+            });
+        }
+    }
+
+    private void onDataLoaded() {
         adapter = new HotelListAdapter(new ArrayList<>(baseHotels), true);
         recyclerView.setAdapter(adapter);
-
         setupFilters();
         runFilter();
     }
@@ -194,7 +255,7 @@ public class HotelListActivity extends AppCompatActivity {
             }
         }
 
-        List<Hotel> filteredList = SearchEngine.searchList(baseHotels, "", location, minPrice, maxPrice, minRating, sortSel);
+        List<Hotel> filteredList = SearchEngine.search(baseHotels, "", location, minPrice, maxPrice, minRating, sortSel);
 
         if (filteredList.isEmpty()) {
             recyclerView.setVisibility(View.GONE);

@@ -8,15 +8,16 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.phuc.datvekhachsan.R;
 
 import java.util.List;
 
 public class DetailImageSliderAdapter extends RecyclerView.Adapter<DetailImageSliderAdapter.ViewHolder> {
-    private final List<Integer> imageResIds;
+    private final List<Object> images;
 
-    public DetailImageSliderAdapter(List<Integer> imageResIds) {
-        this.imageResIds = imageResIds;
+    public DetailImageSliderAdapter(List<Object> images) {
+        this.images = images;
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -37,11 +38,19 @@ public class DetailImageSliderAdapter extends RecyclerView.Adapter<DetailImageSl
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.imageView.setImageResource(imageResIds.get(position));
+        Object image = images.get(position);
+        if (image instanceof Integer) {
+            holder.imageView.setImageResource((Integer) image);
+        } else if (image instanceof String) {
+            Glide.with(holder.itemView.getContext())
+                    .load((String) image)
+                    .placeholder(R.drawable.hotel_intro)
+                    .into(holder.imageView);
+        }
     }
 
     @Override
     public int getItemCount() {
-        return imageResIds.size();
+        return images.size();
     }
 }
