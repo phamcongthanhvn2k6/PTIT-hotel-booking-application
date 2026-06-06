@@ -46,8 +46,12 @@ public class HotelDetailActivity extends AppCompatActivity {
         RecyclerView facilitiesView = findViewById(R.id.facilitiesView);
 
         // Set data
-        if (hotel.getImageResIds() != null && !hotel.getImageResIds().isEmpty()) {
-            hotelImageSlider.setAdapter(new DetailImageSliderAdapter(hotel.getImageResIds()));
+        if (hotel.getImageUrl() != null && !hotel.getImageUrl().isEmpty()) {
+            java.util.List<Object> imgs = java.util.Collections.singletonList(hotel.getImageUrl());
+            hotelImageSlider.setAdapter(new DetailImageSliderAdapter(imgs));
+        } else if (hotel.getImageResIds() != null && !hotel.getImageResIds().isEmpty()) {
+            java.util.List<Object> imgs = new java.util.ArrayList<>(hotel.getImageResIds());
+            hotelImageSlider.setAdapter(new DetailImageSliderAdapter(imgs));
         }
         hotelNameTxt.setText(hotel.getName());
         ratingTxt.setText(String.valueOf(hotel.getRating()));

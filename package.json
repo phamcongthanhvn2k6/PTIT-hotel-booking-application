@@ -1,0 +1,8 @@
+{
+  "name": "datvekhachsan-backend-runner",
+  "version": "1.0.0",
+  "description": "Script to run Spring Boot backend via npm",
+  "scripts": {
+    "dev": "set \"JAVA_HOME=C:\\Program Files\\Android\\Android Studio\\jbr\" && cd backend && mvnw.cmd spring-boot:run"
+  }
+}
