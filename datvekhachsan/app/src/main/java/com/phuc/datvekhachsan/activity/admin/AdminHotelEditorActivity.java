@@ -112,14 +112,13 @@ public class AdminHotelEditorActivity extends AppCompatActivity {
     }
 
     private void uploadImageAndSave(String name, String location, double price, String description) {
-        String filePath = getRealPathFromURI(selectedImageUri);
-        if (filePath == null) {
-            Toast.makeText(this, "Không thể lấy đường dẫn ảnh", Toast.LENGTH_SHORT).show();
+        File file = getFileFromUri(selectedImageUri);
+        if (file == null) {
+            Toast.makeText(this, "Không thể lấy dữ liệu ảnh", Toast.LENGTH_SHORT).show();
             progressBar.setVisibility(View.GONE);
             return;
         }
 
-        File file = new File(filePath);
         RequestBody requestFile = RequestBody.create(MediaType.parse("image/*"), file);
         MultipartBody.Part body = MultipartBody.Part.createFormData("file", file.getName(), requestFile);
 
@@ -183,14 +182,23 @@ public class AdminHotelEditorActivity extends AppCompatActivity {
         });
     }
 
-    private String getRealPathFromURI(Uri contentUri) {
-        String[] proj = {MediaStore.Images.Media.DATA};
-        Cursor cursor = getContentResolver().query(contentUri, proj, null, null, null);
-        if (cursor == null) return null;
-        int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-        cursor.moveToFirst();
-        String path = cursor.getString(column_index);
-        cursor.close();
-        return path;
+    private File getFileFromUri(Uri contentUri) {
+        try {
+            java.io.InputStream is = getContentResolver().openInputStream(contentUri);
+            if (is == null) return null;
+            File tempFile = new File(getCacheDir(), "upload_" + System.currentTimeMillis() + ".jpg");
+            java.io.FileOutputStream fos = new java.io.FileOutputStream(tempFile);
+            byte[] buf = new byte[1024];
+            int len;
+            while ((len = is.read(buf)) > 0) {
+                fos.write(buf, 0, len);
+            }
+            fos.close();
+            is.close();
+            return tempFile;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

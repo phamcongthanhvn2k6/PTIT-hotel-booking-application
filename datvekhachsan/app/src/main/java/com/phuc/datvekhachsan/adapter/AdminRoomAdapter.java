@@ -60,10 +60,14 @@ public class AdminRoomAdapter extends RecyclerView.Adapter<AdminRoomAdapter.Room
         }
 
         holder.btnEditRoom.setOnClickListener(v -> {
-            // Intent intent = new Intent(context, AdminRoomEditorActivity.class);
-            // intent.putExtra("ROOM_ID", room.getId());
-            // context.startActivity(intent);
-            Toast.makeText(context, "Sửa phòng", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(context, com.phuc.datvekhachsan.activity.admin.AdminRoomEditorActivity.class);
+            intent.putExtra("ROOM_ID", room.getId());
+            intent.putExtra("HOTEL_ID", room.getHotel() != null ? room.getHotel().getId() : -1L);
+            intent.putExtra("ROOM_NUMBER", room.getName());
+            intent.putExtra("ROOM_TYPE", room.getRoomType());
+            intent.putExtra("ROOM_PRICE", room.getPricePerNight());
+            intent.putExtra("ROOM_STATUS", room.getStatus() != null ? room.getStatus().name() : "");
+            context.startActivity(intent);
         });
 
         holder.btnDeleteRoom.setOnClickListener(v -> {

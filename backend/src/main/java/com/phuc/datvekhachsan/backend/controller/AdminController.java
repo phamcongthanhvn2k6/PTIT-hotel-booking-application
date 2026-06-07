@@ -43,8 +43,14 @@ public class AdminController {
         long totalBookings = bookingRepository.count();
         
         List<BookingEntity> bookings = bookingRepository.findAll();
-        double totalRevenue = bookings.stream()
+        
+        double actualRevenue = bookings.stream()
                 .filter(b -> "COMPLETED".equals(b.getStatus()))
+                .mapToDouble(BookingEntity::getTotalPrice)
+                .sum();
+                
+        double expectedRevenue = bookings.stream()
+                .filter(b -> !"CANCELLED".equals(b.getStatus()))
                 .mapToDouble(BookingEntity::getTotalPrice)
                 .sum();
 
@@ -52,7 +58,8 @@ public class AdminController {
         stats.put("totalUsers", totalUsers);
         stats.put("totalHotels", totalHotels);
         stats.put("totalBookings", totalBookings);
-        stats.put("totalRevenue", totalRevenue);
+        stats.put("actualRevenue", actualRevenue);
+        stats.put("expectedRevenue", expectedRevenue);
 
         return ResponseEntity.ok(stats);
     }

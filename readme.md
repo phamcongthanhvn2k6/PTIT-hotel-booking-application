@@ -1,192 +1,252 @@
-1. GIỚI THIỆU
-1.1 Bối cảnh và lý do chọn đề tài
-Trong bối cảnh chuyển đổi số mạnh mẽ, nhu cầu đặt phòng khách sạn qua thiết bị di động ngày càng phổ biến. Người dùng có xu hướng ưu tiên các ứng dụng cho phép tìm kiếm, xem thông tin, chọn phòng và đặt phòng nhanh chóng thay vì phải thực hiện thủ công qua điện thoại hoặc trực tiếp tại quầy. Từ thực tiễn đó, nhóm lựa chọn đề tài xây dựng ứng dụng đặt phòng khách sạn nhằm mô phỏng quy trình đặt phòng hiện đại, thuận tiện và dễ sử dụng trên nền tảng Android.
-1.2 Tổng quan dự án
-Dự án là một ứng dụng Android phát triển bằng Java, tập trung vào trải nghiệm đặt phòng khách sạn với giao diện Material Design 3, hỗ trợ Dark Mode, danh sách khách sạn, tìm kiếm thông minh, xem chi tiết khách sạn, chọn ngày nhận phòng, chọn loại phòng, chọn phòng trực quan và lưu lịch sử đặt phòng cục bộ cho từng tài khoản người dùng. Ứng dụng sử dụng SharedPreferences kết hợp Gson để lưu trữ dữ liệu offline, đồng thời tổ chức giao diện theo các màn hình rõ ràng như MainActivity, HotelDetailActivity, SearchActivity, RoomBookingActivity và BookingHistoryActivity.
-1.3 Phạm vi và thông tin dự án
+# 🏨 Dự Án Hệ Thống Đặt Phòng Khách Sạn (Hotel Booking System)
 
-Tiêu chí	Nội dung
-Tên đề tài	Xây dựng ứng dụng đặt phòng khách sạn
-Phạm vi	Ứng dụng di động Android
-Đối tượng sử dụng	Người dùng đăng ký/đăng nhập để tìm và đặt phòng
-Nền tảng triển khai	Android
-Học phần	Phát triển ứng dụng cho các thiết bị di động
-Kiến trúc hệ thống	Client - Server (Android App kết nối RESTful API).
-Công nghệ lưu trữ	Cơ sở dữ liệu quan hệ MySQL tập trung.
+Chào mừng bạn đến với tài liệu hướng dẫn và vận hành của dự án **Hệ thống Đặt Phòng Khách Sạn**. Đây là một ứng dụng được xây dựng theo kiến trúc Client-Server hiện đại, đáp ứng đầy đủ các yêu cầu quản lý và đặt phòng trực tuyến tiện dụng, trực quan.
 
-1.4 Kết quả kỳ vọng
-Sau khi hoàn thành, hệ thống cần đáp ứng các tiêu chí sau:
-•	Người dùng có thể đăng ký, đăng nhập và sử dụng ứng dụng ổn định. 
-•	Người dùng có thể tìm kiếm khách sạn theo tên, vị trí và mô tả. 
-•	Người dùng có thể xem thông tin chi tiết khách sạn, tiện ích và ảnh minh họa. 
-•	Người dùng có thể chọn ngày nhận phòng, loại phòng và phòng cụ thể. 
-•	Lịch sử đặt phòng được lưu riêng cho từng tài khoản để tránh nhầm lẫn dữ liệu. 
-•	Giao diện trực quan, dễ thao tác, phù hợp với trải nghiệm di động.
-2. MÔ TẢ ĐỀ TÀI
-2.1 Tổng quan
-Đề tài tập trung xây dựng một ứng dụng đặt phòng khách sạn trên Android, hỗ trợ toàn bộ quy trình cơ bản từ duyệt danh sách khách sạn, xem chi tiết, tìm kiếm nâng cao, chọn phòng và lưu lại lịch sử đặt phòng. Hệ thống sử dụng các mô-đun tách biệt để dễ bảo trì và mở rộng, đồng thời mô phỏng nghiệp vụ đặt phòng thực tế bằng dữ liệu khách sạn Việt Nam có sẵn trong MockData.
-2.2 Yêu cầu chính của đề tài
-Các yêu cầu chính của đề tài gồm:
-•	Hiển thị danh sách khách sạn với thông tin cơ bản như tên, địa điểm, ảnh, đánh giá và giá phòng. 
-•	Cho phép tìm kiếm khách sạn thông minh theo nhiều tiêu chí. 
-•	Hiển thị chi tiết khách sạn với ảnh slider, tiện ích, mô tả và giá. 
-•	Hỗ trợ đặt phòng theo luồng nhiều bước: chọn ngày nhận phòng, chọn loại phòng, chọn phòng cụ thể. 
-•	Lưu lịch sử đặt phòng offline theo từng tài khoản người dùng. 
-•	Giao diện phải hiện đại, dễ nhìn và hoạt động mượt trên thiết bị Android.
-2.3 Các phân hệ chính
-STT	Phân hệ	Chức năng chính
-1	Quản lý & duyệt khách sạn	Hiển thị danh sách khách sạn đề xuất/phổ biến, hỗ trợ chuyển danh mục.
-2	Chi tiết khách sạn	Hiển thị thông tin chi tiết, tiện nghi (Wifi, Gym, Spa, Hồ bơi...) và slider ảnh bằng ViewPager2.
-3	Đặt phòng & Chọn phòng	Lọc tầng, chọn ngày nhận phòng, hạng phòng, sơ đồ chọn phòng trực quan và tính tiền real-time.
-4	Quản lý người dùng	Đăng ký, đăng nhập và lưu trữ trạng thái phiên làm việc (Session) offline.
-5	Lịch sử đặt phòng	Lưu trữ và hiển thị danh sách các phòng đã đặt theo từng tài khoản.
-6	Tìm kiếm & Bộ lọc nâng cao	Tìm kiếm thông minh có tính điểm độ tương quan, lọc đa tiêu chí (địa điểm, giá, rating).
+---
 
-3. MỤC TIÊU DỰ ÁN
-3.1 Mục tiêu chính
-•  Xây dựng ứng dụng Android hoàn chỉnh phục vụ nhu cầu đặt phòng khách sạn. 
-•  Thiết kế giao diện rõ ràng, dễ sử dụng và mang tính thẩm mỹ cao. 
-•  Áp dụng các kiến thức đã học về lập trình Android, RecyclerView, SharedPreferences, Adapter, Activity, Intent và xử lý dữ liệu JSON. 
-•  Tạo ra một sản phẩm có tính thực tế, có thể trình bày và bảo vệ trong học phần.
-3.2 Mục tiêu cụ thể
-•  Hiển thị danh sách khách sạn mặc định của Việt Nam như Mường Thanh, Vinpearl Resort, Pullman Saigon, InterContinental, Novotel Phú Quốc, Sheraton Hà Nội, Fusion Maia Resort, JW Marriott Phú Quốc và La Siesta Hội An. 
-•  Tạo thuật toán tìm kiếm có tính điểm để tăng độ chính xác kết quả. 
-•  Hỗ trợ debounce khi tìm kiếm để giảm lag và tăng trải nghiệm nhập liệu. 
-•  Tạo luồng đặt phòng nhiều bước, có kiểm tra hợp lệ rõ ràng. 
-•  Lưu trữ lịch sử đặt phòng cục bộ theo từng tài khoản bằng SharedPreferences và Gson.
-4. KIẾN TRÚC HỆ THỐNG
-4.1 Tổng quan kiến trúc
-Hệ thống được xây dựng theo mô hình Client - Server gồm 3 thành phần chính:
-1.	Mobile Client (Android App): Phát triển bằng Java, chịu trách nhiệm xử lý giao diện người dùng, gửi yêu cầu (HTTP Requests) thông qua thư viện Retrofit 2 và lưu trữ tạm thời Access Token (JWT) trong SharedPreferences.
-2.	RESTful API Server (Java Spring Boot): Đóng vai trò là Middleware xử lý các nghiệp vụ (Business Logic). Tích hợp Spring Security và JWT (JSON Web Token) để xác thực, phân quyền các Endpoint API. Sử dụng Spring Data JPA (Hibernate) để tương tác với Database.
-3.	Database Server (MySQL DB): Hệ quản trị cơ sở dữ liệu quan hệ, lưu trữ tập trung dữ liệu về Người dùng, Khách sạn, Phòng và Lịch sử đặt phòng.
-4.2 Cấu trúc tổ chức mã nguồn
-Mã nguồn của dự án được tổ chức theo mô hình phân lớp rõ ràng để dễ bảo trì và mở rộng:
-•	com.phuc.datvekhachsan.activity: Chứa các màn hình giao diện chính của ứng dụng như IntroActivity, MainActivity, LoginActivity, RegisterActivity, HotelListActivity, HotelDetailActivity, SearchActivity, RoomBookingActivity và BookingHistoryActivity. 
-•	com.phuc.datvekhachsan.adapter: Chứa các Adapter phục vụ hiển thị dữ liệu trên RecyclerView và ViewPager2 như BannerAdapter, HotelListAdapter, DetailImageSliderAdapter, AmenityTagAdapter, FacilityAdapter, CheckInDateAdapter, RoomTypeAdapter, RoomGridAdapter và BookingHistoryAdapter. 
-•	com.phuc.datvekhachsan.model: Chứa các lớp mô hình dữ liệu như User, Hotel, Room, Booking, Amenity và SliderItem. 
-•	com.phuc.datvekhachsan.util: Chứa các lớp xử lý logic hỗ trợ như AuthManager, BookingManager và SearchEngine. 
-•	com.phuc.datvekhachsan.data: Chứa MockData, dùng để giả lập dữ liệu khách sạn và tài khoản mẫu trong giai đoạn phát triển và kiểm thử.
-5. CÔNG NGHỆ SỬ DỤNG
+## 📋 Mục Lục
+1. [Giới Thiệu Chung](#-giới-thiệu-chung)
+2. [Cấu Trúc Tổ Chức Mã Nguồn](#-cấu-trúc-tổ-chức-mã-nguồn)
+3. [Hướng Dẫn Cài Đặt & Khởi Chạy](#%EF%B8%8F-hướng-dẫn-cài-đặt--khởi-chạy)
+4. [Kịch Bản Demo Chi Tiết Các Tính Năng](#-kịch-bản-demo-chi-tiết-các-tính-năng)
+5. [Bộ Dữ Liệu Mẫu Cho Các Thao Tác CRUD (Demo)](#-bộ-dữ-liệu-mẫu-cho-các-thao-tác-crud-demo)
+6. [Các Điểm Sáng Kỹ Thuật Đáng Chú Ý](#-các-điểm-sáng-kỹ-thuật-đáng-chú-ý)
 
+---
 
-Nhóm	Công nghệ	Mô tả
-Android Client	Java	Ngôn ngữ phát triển ứng dụng di động chính.
-Android Client	Retrofit 2 & OkHttp	Thư viện gọi API, gửi Header chứa JWT Bearer Token lên Server.
-Android Client	SharedPreferences	Chỉ dùng để lưu trữ trạng thái đăng nhập và chuỗi Token JWT (hạn chế lưu data cứng).
-Backend Server	Java Spring Boot	Framework xây dựng dịch vụ RESTful API phía máy chủ.
-Backend Security	Spring Security & JWT	Bộ lọc xác thực (JWT Filter), mã hóa mật khẩu (BCryptPasswordEncoder), phân quyền truy cập Role-based (USER/ADMIN).
-Database	MySQL & Spring Data	JPA	Cơ sở dữ liệu quan hệ lưu trữ dữ liệu tập trung, truy vấn thông qua thực thể Entity (JPA).
+## 📌 Giới Thiệu Chung
+Dự án được xây dựng với mục tiêu chuyển đổi số trong lĩnh vực du lịch và lưu trú, giúp người dùng đặt phòng nhanh chóng và quản trị viên quản lý dễ dàng hơn.
 
-6. THIẾT KẾ CHỨC NĂNG
-6.1 Phân hệ Quản lý Khách sạn
-•  Hiển thị danh sách khách sạn phổ biến và đề xuất. 
-•  Mỗi khách sạn có ảnh, tên, vị trí, rating, giá phòng và tag tiện ích. 
-•  Dữ liệu được hiển thị bằng Adapter để tối ưu hiển thị danh sách.
-6.2 Phân hệ Chi tiết Khách sạn
-•  Hiển thị mô tả chi tiết, giá phòng, rating và danh sách tiện ích. 
-•  Dùng ViewPager2 để hiển thị bộ ảnh khách sạn dạng slider. 
-•  Có các tiện ích như Wifi, Gym, Spa, Hồ bơi… kèm icon rõ ràng.
-6.3 Phân hệ Đặt Phòng & Chọn Phòng
-•  Chọn ngày nhận phòng bằng danh sách 14 ngày kế tiếp. 
-•  Chọn hạng phòng theo nhiều mức như Standard, Superior, Deluxe, Suite, VIP Suite, Penthouse. 
-•  Hiển thị phòng theo dạng lưới và cho phép chọn/bỏ chọn trực quan. 
-•  Mỗi phòng có trạng thái Available, Selected hoặc Unavailable. 
-•  Tổng tiền được cập nhật theo thời gian thực.
-6.4 Phân hệ Quản lý Người Dùng
-Cơ chế xác thực không trạng thái (Stateless Authentication) bằng JWT:
-Đăng nhập (Sign In): Thiết bị gửi Username/Password lên API /api/auth/login. Spring Boot kiểm tra, mã hóa kiểm tra mật khẩu bằng BCrypt. Nếu đúng, Server tạo một chuỗi JWT chứa thông tin người dùng và quyền hạn (Role: USER/ADMIN) được ký bằng thuật toán bảo mật (HS256) rồi trả về Client. 
-Lưu trữ Token: Android Client nhận JWT và lưu trữ an toàn trong SharedPreferences thông qua lớp AuthManager. 
-Ủy quyền (Authorization): Với mọi yêu cầu tiếp theo cần bảo mật (như đặt phòng, xem lịch sử, quản trị khách sạn), ứng dụng Android sẽ đính kèm Token này vào Header của HTTP Request dạng: Authorization: Bearer <JWT_Token> Spring Security trên Server sẽ có một JwtAuthenticationFilter chặn lại để giải mã, kiểm tra tính hợp lệ và phân quyền trước khi cho phép truy cập tài nguyên.
-6.5 Phân hệ Lịch sử Đặt Phòng
-Phân hệ lịch sử đặt phòng cho phép người dùng xem lại danh sách phòng đã đặt một cách nhanh chóng. Mỗi khi thực hiện đặt phòng thành công, thông tin giao dịch sẽ được lưu trữ tập trung vào bảng bookings trong cơ sở dữ liệu MySQL trên Server. Khi người dùng truy cập màn hình lịch sử đặt phòng (BookingHistoryActivity), ứng dụng Android sẽ gửi yêu cầu HTTP GET kèm theo token JWT đến API /api/bookings/my-history. Server giải mã token để định danh tài khoản, sau đó truy vấn cơ sở dữ liệu MySQL và trả về danh sách lịch sử đặt phòng dưới dạng JSON để hiển thị trực quan lên giao diện.
-6.6 Phân hệ Tìm kiếm Thông minh
-•  Tìm kiếm theo tên khách sạn, địa điểm, mô tả. 
-•  Tính điểm liên quan để xếp kết quả hợp lý. 
-•  Hỗ trợ lọc theo giá, rating và địa điểm. 
-•  Dùng debounce để tối ưu hiệu năng khi người dùng nhập nhanh.
-6.6.1. Cơ chế tìm kiếm có tính điểm
-Để nâng cao độ chính xác của kết quả tìm kiếm, nhóm xây dựng lớp SearchEngine với cơ chế tính điểm độ liên quan (Relevance Score). Mỗi khách sạn sẽ được gán một điểm số dựa trên mức độ phù hợp với từ khóa nhập vào của người dùng.
-Công thức tính điểm:
-S=50⋅Iname+30⋅Ilocation+10⋅Idescription+5⋅Istart_token+2⋅Idesc_token  
-Trong đó:
-•	I_name = 1 nếu từ khóa khớp tên khách sạn, ngược lại bằng 0. 
-•	I_location = 1 nếu khớp vị trí địa lý, ngược lại bằng 0. 
-•	I_description = 1 nếu khớp trong mô tả chi tiết, ngược lại bằng 0. 
-•	I_start_token = 1 nếu một token con bắt đầu bằng từ khóa. 
-•	I_desc_token = 1 nếu token con xuất hiện trong mô tả. 
-Sau khi tính điểm cho toàn bộ danh sách, hệ thống sắp xếp giảm dần theo S để đưa những khách sạn phù hợp nhất lên đầu kết quả.
-6.6.2. Kỹ thuật Debounce tối ưu hiệu năng nhập liệu
-Trong SearchActivity, nhóm triển khai cơ chế Debounce nhằm tránh việc hệ thống liên tục xử lý lại bộ lọc mỗi khi người dùng gõ từng ký tự, từ đó giảm lag giao diện và tối ưu hiệu năng.
-Cơ chế được thực hiện bằng TextWatcher kết hợp Handler:
-searchInput.addTextChangedListener(new TextWatcher() {
-    @Override
-    public void onTextChanged(CharSequence s, int start, int before, int count) {
-        if (searchTask != null) handler.removeCallbacks(searchTask);
-    }
+*   **Nền tảng di động (Android Client):** Phát triển trên ngôn ngữ Java, giao diện Material Design 3 đẹp mắt, hỗ trợ hiển thị động, tối ưu hóa các thao tác chạm vuốt.
+*   **Máy chủ RESTful API (Backend):** Sử dụng framework Java Spring Boot, tích hợp cơ chế bảo mật Spring Security & JWT cho phép phân quyền chi tiết giữa tài khoản thường (`ROLE_USER`) và tài khoản quản trị (`ROLE_ADMIN`).
+*   **Cơ sở dữ liệu tập trung:** Sử dụng MySQL chạy trên cổng `3307` giúp lưu trữ và đồng bộ dữ liệu thời gian thực.
+*   **Lưu trữ hình ảnh đám mây:** Tích hợp với dịch vụ Cloudinary để upload hình ảnh khách sạn trực tiếp từ thiết bị di động.
 
-    @Override
-    public void afterTextChanged(Editable s) {
-        searchTask = () -> runSearch();
-        handler.postDelayed(searchTask, 300);
-    }
-});
-Nguyên lý hoạt động:
-•	Khi người dùng tiếp tục nhập liệu, tác vụ tìm kiếm cũ bị hủy. 
-•	Chỉ khi người dùng ngừng nhập trong 300ms, hệ thống mới thực hiện tìm kiếm. 
-•	Cách làm này giúp giao diện mượt hơn và giảm số lần xử lý không cần thiết.
-7. LUỒNG HOẠT ĐỘNG CHÍNH
-7.1 Luồng Đặt Phòng
-Bước	Hành động	Mô tả chi tiết
-1	Đăng nhập	Người dùng xác thực tài khoản
-2	Duyệt khách sạn	Chọn khách sạn từ danh sách
-3	Xem chi tiết	Xem ảnh, mô tả, tiện ích, giá
-4	Chọn ngày nhận phòng	Chọn trong danh sách ngày tự sinh
-5	Chọn loại phòng	Chọn hạng phòng phù hợp
-6	Chọn loại phòng cụ thể	Chọn phòng đang còn trống
-7	Xác nhận	Kiểm tra dữ liệu và hiển thị hóa đơn
-8	Lưu booking	Ghi vào lịch sử đặt phòng của tài khoản
+---
 
-Luồng này được mô tả rõ trong phần đặt phòng của source code, trong đó RoomGridAdapter xử lý click chọn phòng, cập nhật trạng thái phòng và tính tổng tiền trực tiếp trên giao diện. Sau khi xác nhận, ứng dụng hiển thị hóa đơn bằng Material AlertDialog và điều hướng về màn hình chính.
-7.2 Luồng Xác Thực
-Bước	Thành phần	Hành động
-1	LoginActivity	Người dùng nhập thông tin -> Gửi POST Request qua Retrofit.
-2	Spring Boot Server	Tiếp nhận yêu cầu -> Spring Security xác thực thông tin tài khoản -> Trả về JWT Token.
-3	AuthManager	Đọc Token trả về từ Server -> Lưu Token vào SharedPreferences.
-4	Các Request tiếp theo	OkHttp Interceptor tự động đính kèm Token vào Header gửi lên Server.
+## 📂 Cấu Trúc Tổ Chức Mã Nguồn
 
-Cơ chế này giúp người dùng không phải đăng nhập lại liên tục và đảm bảo các màn hình đặt phòng, lịch sử chỉ được truy cập khi đã xác thực.
-8. PHÂN QUYỀN NGƯỜI DÙNG
-Chức năng	USER	ADMIN
-Xem danh sách khách sạn	✔	✔
-Tìm kiếm khách sạn	✔	✔
-Xem chi tiết khách sạn	✔	✔
-Đặt phòng	✔	✔
-Xem lịch sử đặt phòng	Cá nhân	Toàn bộ
-Quản lý khách sạn	✘	✔
-Quản lý tiện ích/phòng	✘	✔
-Xem dữ liệu người dùng	✘	✔
+### 1. Phân Hệ Backend (Spring Boot) - `/backend`
+Tổ chức dự án theo mô hình phân lớp chuẩn (Layered Architecture):
+```
+backend/
+├── src/main/java/com/phuc/datvekhachsan/backend/
+│   ├── BackendApplication.java (File chạy chính khởi tạo Spring Boot)
+│   ├── config/ (Cấu hình hệ thống: CORS, WebMvc, Cloudinary)
+│   ├── controller/ (Định nghĩa các RESTful Endpoints để Android gọi API)
+│   │   ├── AdminController.java (API dành riêng cho Admin: thống kê, quản trị User, Hotel, Room, Booking, Upload file)
+│   │   ├── AuthController.java (API đăng nhập, đăng ký tài khoản, sinh Token JWT)
+│   │   ├── BookingController.java (API đặt phòng, lấy lịch sử đặt phòng của user)
+│   │   ├── HotelController.java (API lấy danh sách khách sạn dành cho khách hàng)
+│   │   ├── RoomController.java (API lấy danh sách phòng của khách sạn)
+│   │   └── UserController.java (API lấy/cập nhật thông tin tài khoản người dùng)
+│   ├── dto/ (Data Transfer Objects để trao đổi dữ liệu an toàn qua API)
+│   ├── model/ (Các JPA Entities ánh xạ trực tiếp đến các bảng MySQL: UserEntity, HotelEntity, RoomEntity, BookingEntity...)
+│   ├── repository/ (Các Interface JPA Repository cung cấp các phương thức CRUD truy vấn database)
+│   ├── security/ (Cấu hình Spring Security, JWT Filter chặn và giải mã Token, mã hóa mật khẩu BCrypt)
+│   └── service/ (Xử lý các nghiệp vụ logic chính và dịch vụ tích hợp bên thứ ba như Cloudinary)
+└── src/main/resources/
+    └── application.properties (Chứa các cấu hình kết nối DB, khóa bí mật JWT, API key Cloudinary)
+```
 
-Trong source hiện tại, trọng tâm vẫn là trải nghiệm người dùng cuối, nhưng dữ liệu mock và phân luồng màn hình đã cho phép mở rộng sang phần quản trị nếu cần phát triển tiếp.
-9. KẾT LUẬN
-Dự án Xây dựng ứng dụng đặt phòng khách sạn đã được thiết kế và triển khai theo hướng hoàn chỉnh, có đầy đủ các chức năng cốt lõi như hiển thị khách sạn, tìm kiếm thông minh, xem chi tiết, đặt phòng, lưu lịch sử và quản lý phiên người dùng. Ứng dụng thể hiện rõ sự kết hợp giữa giao diện hiện đại, mô hình dữ liệu rõ ràng và các kỹ thuật xử lý như debounce tìm kiếm, lưu trữ JSON bằng Gson, quản lý trạng thái đăng nhập bằng SharedPreferences và giao diện đặt phòng trực quan.
-9.1 Kết quả đạt được
-• Hoàn thành giao diện chính, chi tiết và đặt phòng. 
-• Tìm kiếm khách sạn có tính điểm và lọc nâng cao. 
-• Lưu lịch sử đặt phòng theo từng tài khoản. 
-• Giao diện hiện đại, thống nhất theo Material Design 3. 
-• Tổ chức code theo hướng dễ mở rộng và bảo trì.
-9.2 Hướng phát triển tiếp theo
-• Tích hợp cổng thanh toán trực tuyến qua bên thứ ba (như Momo, VNPAY, ZaloPay).
-• Xây dựng hệ thống thông báo đẩy (Push Notifications) thời gian thực bằng Firebase Cloud Messaging (FCM) khi đặt phòng thành công. 
-• Tối ưu ứng dụng bằng cách thêm cơ chế offline caching (sử dụng Room Database làm bộ nhớ đệm cục bộ) khi mất kết nối mạng.
+### 2. Phân Hệ Android Client - `/datvekhachsan`
+Ứng dụng di động được tổ chức theo các gói chức năng (Packages):
+```
+datvekhachsan/
+└── app/src/main/java/com/phuc/datvekhachsan/
+    ├── activity/ (Chứa mã nguồn điều khiển các màn hình giao diện)
+    │   ├── IntroActivity.java (Màn hình giới thiệu, chào mừng khi khởi động)
+    │   ├── LoginActivity.java / RegisterActivity.java (Màn hình đăng nhập & đăng ký tài khoản)
+    │   ├── MainActivity.java (Màn hình chính hiển thị danh mục, danh sách đề xuất)
+    │   ├── SearchActivity.java (Màn hình tìm kiếm nâng cao kèm thuật toán tính điểm và bộ lọc)
+    │   ├── HotelDetailActivity.java (Xem chi tiết khách sạn, bộ ảnh slider, tiện ích đi kèm)
+    │   ├── RoomBookingActivity.java (Màn hình đặt phòng: chọn ngày check-in, hạng phòng và sơ đồ phòng dạng lưới)
+    │   ├── PaymentActivity.java / PaymentSuccessActivity.java (Giao diện thanh toán và chúc mừng đặt phòng thành công)
+    │   ├── BookingHistoryActivity.java (Xem lịch sử các đơn đặt phòng của tài khoản hiện tại)
+    │   ├── FavoriteHotelsActivity.java (Xem danh sách các khách sạn đã lưu yêu thích)
+    │   ├── ProfileActivity.java (Trang cá nhân, đổi ảnh đại diện và đăng xuất)
+    │   └── admin/ (Thư mục chứa giao diện điều hành dành riêng cho ADMIN)
+    │       ├── AdminDashboardActivity.java (Màn hình thống kê doanh thu dự kiến, doanh thu thật & liên kết quản lý)
+    │       ├── AdminHotelListActivity.java / AdminHotelEditorActivity.java (Trang xem và thêm/sửa/xóa khách sạn)
+    │       ├── AdminRoomListActivity.java / AdminRoomEditorActivity.java (Trang xem và thêm/sửa/xóa phòng của khách sạn)
+    │       ├── AdminBookingListActivity.java (Duyệt danh sách đặt phòng và xác nhận thanh toán tại quầy)
+    │       └── AdminUserListActivity.java (Xem danh sách tài khoản đã đăng ký trong hệ thống)
+    ├── adapter/ (Các lớp Adapter xử lý ánh xạ dữ liệu lên RecyclerView như hiển thị danh sách phòng, khách sạn, ngày, tiện nghi...)
+    ├── model/ (Các lớp Java Object đại diện cho thực thể dữ liệu nhận về từ API)
+    ├── network/ (Cấu hình RetrofitClient kết nối Server và AuthInterceptor tự động đính kèm Token JWT)
+    └── util/ (Lớp tiện ích bổ trợ như AuthManager quản lý phiên đăng nhập)
+```
 
-❌ Chưa có Spring Boot
-❌ Chưa có REST API
-❌ Chưa có Retrofit
-❌ Chưa có MySQL
-❌ Chưa có JWT
-❌ Chưa có Spring Security
-❌ Chưa có BCrypt
-❌ Chưa có Entity UserEntity, HotelEntity, BookingEntity
-❌ Chưa có phân quyền ROLE_USER / ROLE_ADMIN
+---
+
+## 🛠️ Hướng Dẫn Cài Đặt & Khởi Chạy
+
+### Bước 1: Clone dự án từ GitHub
+1. Mở Terminal (hoặc Git Bash / Command Prompt).
+2. Chạy lệnh clone để tải toàn bộ mã nguồn về máy:
+   ```bash
+   git clone <ĐƯỜNG_DẪN_GIT_CỦA_BẠN>
+   ```
+3. Di chuyển vào thư mục dự án:
+   ```bash
+   cd PTIT-Android-main
+   ```
+
+### Bước 2: Thiết lập Cơ sở dữ liệu MySQL
+1. Khởi động MySQL Server của bạn (ví dụ dùng phần mềm **Laragon** hoặc **XAMPP**). Đảm bảo cổng kết nối MySQL là **3307** (nếu dùng cổng `3306` mặc định, vui lòng sửa lại cấu hình trong file [application.properties](file:///c:/PTIT-Android-main/backend/src/main/resources/application.properties)).
+2. Tạo một cơ sở dữ liệu trống có tên là: `hotel_booking_db`.
+3. Import file cơ sở dữ liệu có sẵn tại thư mục gốc của dự án: [init_db.sql](file:///c:/PTIT-Android-main/init_db.sql).
+
+### Bước 3: Mở & Chạy RESTful API Server (Backend)
+1. Bạn có thể mở thư mục gốc bằng các IDE hỗ trợ Java như **IntelliJ IDEA**, **Eclipse** hoặc **Android Studio** để chạy.
+2. Mở Terminal tích hợp trong IDE (hoặc terminal ngoài máy tính).
+3. Thực thi lệnh sau để di chuyển vào thư mục backend, biên dịch và chạy dự án Spring Boot:
+   ```bash
+   cd backend
+   .\mvnw spring-boot:run
+   ```
+4. Sau khi khởi chạy thành công, máy chủ API sẽ sẵn sàng tại địa chỉ `http://localhost:8080`.
+
+> [!NOTE]
+> Mật khẩu mặc định của tất cả tài khoản có sẵn trong DB đều là `123456` (được lưu dưới dạng mã hóa BCrypt).
+> *   **Tài khoản ADMIN:** `admin` | Mật khẩu: `123456`
+> *   **Tài khoản USER tiêu chuẩn:** `phamcongt56@gmail.com` | Mật khẩu: `123456`
+
+### Bước 4: Mở & Chạy ứng dụng Android Client
+1. Khởi động **Android Studio**.
+2. Trên màn hình welcome của Android Studio, chọn **Open** (hoặc **File > Open**).
+3. Duyệt đến thư mục dự án vừa clone, chọn thư mục con `/datvekhachsan` và nhấn **OK** để mở.
+4. Đợi Android Studio hoàn tất quá trình đồng bộ (Gradle Sync) để tải các thư viện.
+5. Chọn thiết bị ảo (Emulator) đã tạo sẵn hoặc kết nối điện thoại Android thật vào máy tính. Nhấn nút **Run (▶)** màu xanh lá trên thanh công cụ để cài đặt và chạy ứng dụng.
+
+> [!IMPORTANT]
+> - Thiết bị ảo Android kết nối đến máy chủ localhost thông qua địa chỉ IP đặc biệt: `http://10.0.2.2:8080/`. Địa chỉ này đã được cấu hình sẵn trong [RetrofitClient.java](file:///c:/PTIT-Android-main/datvekhachsan/app/src/main/java/com/phuc/datvekhachsan/network/RetrofitClient.java).
+> - Nếu chạy ứng dụng trên **điện thoại Android thật**, bạn cần đảm bảo điện thoại và máy tính chạy backend kết nối chung một mạng Wi-Fi. Sau đó thay đổi giá trị `BASE_URL` trong [RetrofitClient.java](file:///c:/PTIT-Android-main/datvekhachsan/app/src/main/java/com/phuc/datvekhachsan/network/RetrofitClient.java) từ `http://10.0.2.2:8080/` thành địa chỉ IP mạng nội bộ của máy tính bạn (ví dụ: `http://192.168.1.15:8080/`).
+
+---
+
+## 📱 Kịch Bản Demo Chi Tiết Các Tính Năng
+
+### PHẦN I: TRẢI NGHIỆM DÀNH CHO USER (Khách hàng đặt phòng)
+*Đăng nhập bằng tài khoản: **`phamcongt56@gmail.com`** / mật khẩu: **`123456`***
+
+1.  **Đăng nhập & Điều hướng:**
+    *   Mở ứng dụng, nhấn **Bắt đầu** ở màn hình Intro.
+    *   Nhập thông tin tài khoản user. Hệ thống xác thực qua API, lấy Token JWT và lưu vào bộ nhớ SharedPreferences, dẫn người dùng vào trang chủ.
+2.  **Khám phá trang chủ:**
+    *   Xem danh mục khách sạn đề xuất hàng đầu (Vinpearl, Mường Thanh, Pullman...) hiển thị dưới dạng thẻ lướt ngang và danh sách đứng.
+    *   Click vào nút trái tim trên mỗi thẻ khách sạn để thêm vào danh sách yêu thích cá nhân.
+3.  **Tìm kiếm nâng cao:**
+    *   Click vào thanh tìm kiếm ở trang chủ. Nhập ký tự bất kỳ (ví dụ: `Hà Nội`).
+    *   Cơ chế **Debounce 300ms** tự động lọc danh sách sau khi dừng gõ, hạn chế giật lag.
+    *   Khách sạn được hiển thị theo thứ tự điểm số từ thuật toán tính độ liên quan (Relevance Score).
+4.  **Xem chi tiết & Luồng đặt phòng:**
+    *   Click chọn khách sạn **Mường Thanh Luxury**. Xem mô tả, xem slider hình ảnh và các tiện ích (Wifi, Gym, Spa...).
+    *   Nhấn nút **Đặt phòng ngay**.
+    *   Chọn **Ngày nhận phòng** mong muốn (trong danh sách 14 ngày tới).
+    *   Chọn **Hạng phòng** cần đặt (ví dụ: `Standard` hoặc `Deluxe`).
+    *   Sơ đồ các phòng thuộc hạng đó sẽ hiện ra dạng lưới:
+        *   *Màu xanh lá:* Phòng đang trống.
+        *   *Màu xám:* Phòng đã được đặt trước đó (không thể click chọn).
+    *   Click chọn một phòng trống (phòng đổi sang màu xanh dương). Tổng giá tiền thanh toán được cập nhật ngay lập tức.
+    *   Nhấn **Xác nhận đặt phòng**, chọn hình thức thanh toán và hoàn tất đơn hàng.
+5.  **Xem lịch sử:**
+    *   Nhấn biểu tượng lịch sử ở thanh điều hướng để xem lại danh sách đơn hàng đã đặt cùng trạng thái tương ứng.
+
+---
+
+### PHẦN II: TRẢI NGHIỆM DÀNH CHO ADMIN (Quản trị viên)
+*Đăng nhập bằng tài khoản: **`admin`** / mật khẩu: **`123456`***
+
+1.  **Trang thống kê doanh thu (Dashboard):**
+    *   Đăng nhập bằng tài khoản admin sẽ đưa bạn thẳng đến trang **Admin Dashboard**.
+    *   Giao diện hiển thị trực quan các thẻ số liệu: *Tổng người dùng*, *Tổng số khách sạn*, *Tổng đơn đặt phòng*.
+    *   Thống kê 2 chỉ số doanh thu quan trọng:
+        *   **Doanh thu dự kiến (Expected Revenue):** Tổng tiền của tất cả các đơn đặt phòng (ngoại trừ các đơn bị hủy `CANCELLED`).
+        *   **Doanh thu thật (Actual Revenue):** Chỉ tính tổng tiền của các đơn đặt phòng đã hoàn tất và được admin xác nhận thanh toán tại quầy (`COMPLETED`).
+2.  **Xác nhận thanh toán (Thay đổi doanh thu thật):**
+    *   Từ Dashboard, click chọn **Quản lý đặt phòng**.
+    *   Nhấn nút **Xác nhận thanh toán** trên đơn đặt phòng mới của khách hàng (đang ở trạng thái `CONFIRMED`).
+    *   Trạng thái đơn hàng chuyển sang `COMPLETED`.
+    *   Quay lại trang Dashboard, chỉ số **Doanh thu thật** sẽ tăng lên tương ứng với số tiền của đơn hàng đó.
+3.  **Quản lý người dùng:**
+    *   Xem danh sách tất cả người dùng trong cơ sở dữ liệu.
+    *   Cho phép thực hiện thao tác Khóa (LOCK) hoặc Mở khóa (ACTIVE) tài khoản người dùng ngay lập tức.
+4.  **Quản lý Khách sạn & Phòng (CRUD):**
+    *   Thực hiện thêm mới, sửa đổi thông tin hoặc xóa bớt các khách sạn và phòng nghỉ.
+    *   Hỗ trợ upload trực tiếp ảnh chụp khách sạn từ điện thoại lên kho lưu trữ trực tuyến Cloudinary.
+
+---
+
+## 📝 Bộ Dữ Liệu Mẫu Cho Các Thao Tác CRUD (Demo)
+
+Khi thực hiện thuyết trình hoặc demo trực tiếp tính năng thêm, sửa, xóa, bạn hãy sử dụng bộ dữ liệu mẫu dưới đây để thao tác nhanh và tạo hiệu ứng trực quan tốt nhất:
+
+### 1. Thao tác với KHÁCH SẠN (Hotel CRUD)
+*Đường dẫn truy cập: **Admin Dashboard** ➔ **Quản lý khách sạn***
+
+#### A. Thêm Khách Sạn Mới (Create)
+*Nhấn nút cộng `+` ở góc trên bên phải màn hình danh sách khách sạn.*
+*   **Tên khách sạn:** `Khách sạn Grand Vista Hà Nội`
+*   **Địa điểm:** `Hà Nội`
+*   **Giá phòng tối thiểu:** `1200000` *(Nhập số liền, không nhập ký tự chữ hay dấu chấm)*
+*   **Đánh giá (Rating):** `4.8`
+*   **Mô tả chi tiết:** `Khách sạn 4 sao cao cấp tọa lạc tại trung tâm quận Ba Đình, Hà Nội. Hệ thống phòng nghỉ sang trọng, cung cấp đầy đủ dịch vụ tiện ích như hồ bơi bốn mùa trong nhà, phòng gym hiện đại và nhà hàng ẩm thực Á - Âu phục vụ 24/7.`
+*   **Hình ảnh khách sạn:** Chọn ảnh thực tế từ thư viện điện thoại hoặc sao chép và dán liên kết ảnh này:
+    `https://images.unsplash.com/photo-1551882547-ff40c0d589e6?w=800&q=80`
+*   *Thao tác:* Nhấn nút **LƯU**. Hệ thống sẽ gọi API thêm khách sạn và tự động làm mới danh sách. Bạn vuốt xuống dưới cùng sẽ thấy khách sạn mới xuất hiện.
+
+#### B. Sửa Thông Tin Khách Sạn (Update)
+*Nhấn nút sửa (hình bút chì) bên cạnh khách sạn **Khách sạn Grand Vista Hà Nội** vừa tạo.*
+*   **Tên khách sạn:** `Grand Vista Luxury & Spa Hà Nội` *(Sửa lại tên)*
+*   **Giá phòng tối thiểu:** `1450000` *(Tăng giá phòng)*
+*   **Đánh giá (Rating):** `4.9` *(Tăng rating)*
+*   *Thao tác:* Nhấn nút **CẬP NHẬT**. Danh sách sẽ được thay đổi thông tin mới ngay lập tức.
+
+#### C. Xóa Khách Sạn (Delete)
+*Nhấn nút xóa (hình thùng rác màu đỏ) tại khách sạn mong muốn.*
+*   *Thao tác:* Xác nhận **Đồng ý** trong hộp thoại cảnh báo hiện ra. Khách sạn sẽ bị xóa vĩnh viễn khỏi database và danh sách hiển thị của cả khách hàng.
+
+---
+
+### 2. Thao tác với PHÒNG CỦA KHÁCH SẠN (Room CRUD)
+*Đường dẫn truy cập: **Quản lý khách sạn** ➔ Ấn vào tên một khách sạn (ví dụ: **Grand Vista Luxury & Spa Hà Nội**) để vào danh sách quản lý phòng của khách sạn đó.*
+
+#### A. Thêm Phòng Mới (Create)
+*Nhấn nút cộng `+` ở góc trên bên phải màn hình quản lý phòng.*
+*   **Số phòng (Room Number):** `501`
+*   **Loại phòng (Room Type):** Chọn `Deluxe` *(Hoặc chọn VIP, Standard, Suite tùy ý)*
+*   **Giá mỗi đêm:** `1500000`
+*   **Trạng thái ban đầu:** Chọn `AVAILABLE` *(Sẵn sàng đón khách)*
+*   *Thao tác:* Nhấn nút **LƯU**. Phòng `501` sẽ xuất hiện trong danh sách phòng của khách sạn này.
+
+#### B. Sửa Thông Tin Phòng (Update)
+*Nhấn trực tiếp vào phòng `501` vừa tạo.*
+*   **Số phòng:** `501-VIP` *(Thay đổi số phòng)*
+*   **Loại phòng:** Đổi thành `Suite`
+*   **Giá mỗi đêm:** `2200000` *(Tăng giá trị phòng)*
+*   **Trạng thái phòng:** Đổi thành `AVAILABLE`
+*   *Thao tác:* Nhấn nút **CẬP NHẬT**. Giao diện quản lý của Admin sẽ cập nhật ngay lập tức các thông số mới.
+
+#### C. Xóa Phòng (Delete)
+*Nhấn biểu tượng xóa (thùng rác) bên cạnh dòng phòng cần xóa.*
+*   *Thao tác:* Chọn **Đồng ý** xác nhận xóa. Phòng sẽ biến mất khỏi sơ đồ phòng của khách sạn đó.
+
+---
+
+## 🌟 Các Điểm Sáng Kỹ Thuật Đáng Chú Ý
+
+Khi báo cáo hoặc thuyết trình đồ án trước hội đồng chuyên môn, bạn nên tập trung giới thiệu các kỹ thuật tối ưu hóa cốt lõi đã triển khai trong mã nguồn:
+
+1.  **Cơ chế xác thực không trạng thái (JWT Stateless):**
+    *   Hệ thống không sử dụng session truyền thống. Thay vào đó, sau khi người dùng đăng nhập thành công, Server sinh ra chuỗi Token JWT.
+    *   Android Client lưu Token này trong `SharedPreferences` thông qua lớp tiện ích `AuthManager`.
+    *   Lớp `AuthInterceptor` (OkHttp) tự động can thiệp vào tất cả các yêu cầu tiếp theo để đính kèm Token này vào tiêu đề `Authorization: Bearer <token>`, giúp tối ưu bảo mật và giảm thiểu yêu cầu đăng nhập lại.
+2.  **Dashboard Thống Kê Doanh Thu Động:**
+    *   Hệ thống tự động phân tách **Doanh thu dự kiến** và **Doanh thu thật** dựa trên vòng đời của một đơn đặt phòng (`CONFIRMED` -> `COMPLETED`). Điều này phản ánh chính xác quy trình quản trị thực tế của các khách sạn.
+3.  **Thuật toán Tìm kiếm & Lọc Relevance Score:**
+    *   Lớp `SearchEngine` phía Android tự động chấm điểm độ tương quan của từ khóa tìm kiếm dựa trên độ khớp của tên khách sạn (trọng số 50), địa điểm (trọng số 30) và mô tả (trọng số 10) để sắp xếp kết quả tìm kiếm tốt nhất lên đầu.
+4.  **Tối ưu hóa hiệu năng bằng Debounce:**
+    *   Màn hình tìm kiếm sử dụng cơ chế trì hoãn lệnh (Debounce 300ms) để theo dõi ký tự nhập vào. Chỉ khi người dùng ngưng gõ phím quá 300ms thì bộ tìm kiếm mới thực thi lọc dữ liệu, tránh việc gửi quá nhiều yêu cầu API liên tục gây đơ nghẽn ứng dụng.
+5.  **Tích hợp Cloudinary SDK:**
+    *   Admin có thể chụp ảnh hoặc chọn ảnh khách sạn từ bộ nhớ máy, ứng dụng di động sẽ mã hóa và tải trực tiếp lên Cloudinary. Server API sẽ lưu trữ URL ảnh trực tuyến này, tránh lưu trữ file cục bộ nặng nề trên máy chủ Database.

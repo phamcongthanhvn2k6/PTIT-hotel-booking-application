@@ -40,6 +40,12 @@ public interface AdminApiService {
     @GET("api/admin/hotels/{hotelId}/rooms")
     Call<List<com.phuc.datvekhachsan.model.Room>> getRoomsByHotel(@Path("hotelId") Long hotelId);
 
+    @POST("api/admin/hotels/{hotelId}/rooms")
+    Call<com.phuc.datvekhachsan.model.Room> addRoom(@Path("hotelId") Long hotelId, @Body com.phuc.datvekhachsan.model.Room room);
+
+    @PUT("api/admin/rooms/{id}")
+    Call<com.phuc.datvekhachsan.model.Room> updateRoom(@Path("id") Long id, @Body com.phuc.datvekhachsan.model.Room room);
+
     @DELETE("api/admin/rooms/{id}")
     Call<JsonObject> deleteRoom(@Path("id") Long id);
 
