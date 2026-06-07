@@ -28,6 +28,7 @@ public class BookingHistoryAdapter extends RecyclerView.Adapter<BookingHistoryAd
     public static class ViewHolder extends RecyclerView.ViewHolder {
         ImageView hotelImage;
         TextView hotelNameTxt, locationTxt, roomTypeTxt, roomsSelectedTxt, checkInDateTxt, bookingTimeTxt, totalPriceTxt;
+        com.google.android.material.button.MaterialButton btnReview;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -39,6 +40,7 @@ public class BookingHistoryAdapter extends RecyclerView.Adapter<BookingHistoryAd
             checkInDateTxt = itemView.findViewById(R.id.checkInDateTxt);
             bookingTimeTxt = itemView.findViewById(R.id.bookingTimeTxt);
             totalPriceTxt = itemView.findViewById(R.id.totalPriceTxt);
+            btnReview = itemView.findViewById(R.id.btnReview);
         }
 
         void bind(Booking booking) {
@@ -54,6 +56,77 @@ public class BookingHistoryAdapter extends RecyclerView.Adapter<BookingHistoryAd
 
             NumberFormat formatter = NumberFormat.getInstance(new Locale("vi", "VN"));
             totalPriceTxt.setText(itemView.getContext().getString(R.string.price_currency_format, formatter.format(booking.getTotalPrice())));
+
+            // Logic to show/hide Review button
+            if (booking.getCheckOutDateObj() != null && booking.getCheckOutDateObj().before(new Date())) {
+                btnReview.setVisibility(View.VISIBLE);
+                btnReview.setOnClickListener(v -> showReviewDialog(booking));
+            } else {
+                btnReview.setVisibility(View.GONE);
+            }
+        }
+
+        private void showReviewDialog(Booking booking) {
+            android.content.Context context = itemView.getContext();
+            android.view.View dialogView = android.view.LayoutInflater.from(context).inflate(R.layout.dialog_review, null);
+            androidx.appcompat.app.AlertDialog dialog = new androidx.appcompat.app.AlertDialog.Builder(context)
+                    .setView(dialogView)
+                    .setCancelable(false)
+                    .create();
+
+            if (dialog.getWindow() != null) {
+                dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            }
+
+            android.widget.RatingBar ratingBar = dialogView.findViewById(R.id.ratingBar);
+            android.widget.EditText commentInput = dialogView.findViewById(R.id.commentInput);
+            View btnCancel = dialogView.findViewById(R.id.btnCancel);
+            com.google.android.material.button.MaterialButton btnSubmitReview = dialogView.findViewById(R.id.btnSubmitReview);
+
+            btnCancel.setOnClickListener(v -> dialog.dismiss());
+
+            btnSubmitReview.setOnClickListener(v -> {
+                String comment = commentInput.getText().toString().trim();
+                int rating = (int) ratingBar.getRating();
+                Long hotelId = booking.getHotelId();
+
+                if (hotelId == null) {
+                    android.widget.Toast.makeText(context, "Không xác định được khách sạn!", android.widget.Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                btnSubmitReview.setEnabled(false);
+                btnSubmitReview.setText("Đang gửi...");
+
+                com.google.gson.JsonObject request = new com.google.gson.JsonObject();
+                request.addProperty("hotelId", hotelId);
+                request.addProperty("rating", rating);
+                request.addProperty("comment", comment);
+
+                com.phuc.datvekhachsan.network.ApiService apiService = com.phuc.datvekhachsan.network.RetrofitClient.getClient(context).create(com.phuc.datvekhachsan.network.ApiService.class);
+                apiService.createReview(request).enqueue(new retrofit2.Callback<com.google.gson.JsonObject>() {
+                    @Override
+                    public void onResponse(retrofit2.Call<com.google.gson.JsonObject> call, retrofit2.Response<com.google.gson.JsonObject> response) {
+                        dialog.dismiss();
+                        if (response.isSuccessful()) {
+                            android.widget.Toast.makeText(context, "Cảm ơn bạn đã đánh giá!", android.widget.Toast.LENGTH_SHORT).show();
+                            btnReview.setText("Đã đánh giá");
+                            btnReview.setEnabled(false);
+                            btnReview.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.GRAY));
+                        } else {
+                            android.widget.Toast.makeText(context, "Lỗi khi gửi đánh giá", android.widget.Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(retrofit2.Call<com.google.gson.JsonObject> call, Throwable t) {
+                        dialog.dismiss();
+                        android.widget.Toast.makeText(context, "Lỗi mạng: " + t.getMessage(), android.widget.Toast.LENGTH_SHORT).show();
+                    }
+                });
+            });
+
+            dialog.show();
         }
     }
 

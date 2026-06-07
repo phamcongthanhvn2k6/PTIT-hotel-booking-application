@@ -59,6 +59,10 @@ public class Booking implements Serializable {
         if (room != null && room.getHotel() != null) return room.getHotel().getName();
         return hotelName;
     }
+    public Long getHotelId() {
+        if (room != null && room.getHotel() != null) return room.getHotel().getId();
+        return null; // Local legacy bookings won't have this
+    }
     public int getHotelImageResId() {
         // Since backend doesn't send ImageResId, fallback to a default image if legacy isn't there
         return hotelImageResId != 0 ? hotelImageResId : com.phuc.datvekhachsan.R.drawable.hotel;

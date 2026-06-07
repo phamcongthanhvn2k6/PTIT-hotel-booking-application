@@ -105,6 +105,19 @@
             android:textColor="#FF6B35"
             android:textSize="15sp"
             android:textStyle="bold" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnReview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Đánh giá"
+            android:textColor="@android:color/white"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            app:cornerRadius="6dp"
+            app:backgroundTint="#FF5722" />
     </LinearLayout>
 
 </LinearLayout>

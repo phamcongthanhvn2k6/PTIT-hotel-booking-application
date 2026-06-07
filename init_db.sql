@@ -207,6 +207,12 @@ CREATE TABLE IF NOT EXISTS favorite_hotels (
     FOREIGN KEY (hotel_id) REFERENCES hotels(id) ON DELETE CASCADE
 );
 
+-- Lịch sử đặt phòng mẫu cho user phamcongt56@gmail.com (id=2)
+INSERT INTO bookings (user_id, room_id, check_in_date, check_out_date, total_price, status, created_at) VALUES
+(2, 1, '2023-01-10', '2023-01-12', 3000000.00, 'CONFIRMED', '2023-01-05 10:00:00'),
+(2, 5, '2023-05-20', '2023-05-25', 12500000.00, 'CONFIRMED', '2023-05-01 15:30:00'),
+(2, 10, '2023-11-01', '2023-11-03', 8000000.00, 'CONFIRMED', '2023-10-20 09:15:00');
+
 -- Một số đánh giá mẫu đa dạng hơn
 INSERT INTO reviews (user_id, hotel_id, rating, comment) VALUES
 (2, 1, 5, 'Khách sạn rất đẹp và tiện nghi, nằm ngay trung tâm dễ di chuyển.'),
