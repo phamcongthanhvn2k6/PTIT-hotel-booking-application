@@ -53,6 +53,7 @@ public class HotelListAdapter extends RecyclerView.Adapter<HotelListAdapter.View
                 Glide.with(itemView.getContext())
                         .load(hotel.getImageUrl())
                         .placeholder(R.drawable.hotel_intro)
+                        .error(R.drawable.ic_hotel)
                         .into(hotelImage);
             } else if (hotel.getImageResId() != 0) {
                 hotelImage.setImageResource(hotel.getImageResId());

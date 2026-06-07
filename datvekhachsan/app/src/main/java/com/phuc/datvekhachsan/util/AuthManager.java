@@ -11,6 +11,7 @@ public final class AuthManager {
     private static final String KEY_FULLNAME = "fullName";
     private static final String KEY_USERNAME = "username";
     private static final String KEY_EMAIL = "email";
+    private static final String KEY_ROLE = "role";
 
     private AuthManager() {}
 
@@ -34,12 +35,22 @@ public final class AuthManager {
         return prefs.getString(KEY_EMAIL, "");
     }
 
+    public static String getRole(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+        return prefs.getString(KEY_ROLE, "ROLE_USER");
+    }
+
+    public static boolean isAdmin(Context context) {
+        return "ROLE_ADMIN".equals(getRole(context));
+    }
+
     public static void login(Context context, com.phuc.datvekhachsan.model.User user) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
         prefs.edit()
                 .putString(KEY_FULLNAME, user.getFullName())
                 .putString(KEY_USERNAME, user.getUsername())
                 .putString(KEY_EMAIL, user.getEmail())
+                .putString(KEY_ROLE, user.getRole())
                 .apply();
     }
 

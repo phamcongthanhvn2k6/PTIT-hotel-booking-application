@@ -17,9 +17,15 @@ public class RoomTypeAdapter extends RecyclerView.Adapter<RoomTypeAdapter.ViewHo
     private final List<String> roomTypes;
     private int selectedPosition = -1;
     private int lastSelectedPosition = -1;
+    private OnRoomTypeSelectedListener listener;
 
-    public RoomTypeAdapter(List<String> roomTypes) {
+    public interface OnRoomTypeSelectedListener {
+        void onRoomTypeSelected(String roomType);
+    }
+
+    public RoomTypeAdapter(List<String> roomTypes, OnRoomTypeSelectedListener listener) {
         this.roomTypes = roomTypes;
+        this.listener = listener;
     }
 
     public boolean hasSelection() {
@@ -59,6 +65,9 @@ public class RoomTypeAdapter extends RecyclerView.Adapter<RoomTypeAdapter.ViewHo
                     selectedPosition = pos;
                     notifyItemChanged(lastSelectedPosition);
                     notifyItemChanged(selectedPosition);
+                    if (listener != null) {
+                        listener.onRoomTypeSelected(roomTypes.get(pos));
+                    }
                 }
             });
         }

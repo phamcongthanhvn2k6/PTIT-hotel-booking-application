@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_admin_dashboard"
+            android:icon="@android:drawable/ic_menu_compass"
+            android:title="Thống kê (Dashboard)" />
+        <item
+            android:id="@+id/nav_admin_hotels"
+            android:icon="@android:drawable/ic_menu_myplaces"
+            android:title="Quản lý Khách sạn" />
+        <item
+            android:id="@+id/nav_admin_bookings"
+            android:icon="@android:drawable/ic_menu_recent_history"
+            android:title="Quản lý Đặt phòng" />
+        <item
+            android:id="@+id/nav_admin_users"
+            android:icon="@android:drawable/ic_menu_myplaces"
+            android:title="Quản lý Người dùng" />
+    </group>
+
+    <item android:title="Hệ thống">
+        <menu>
+            <item
+                android:id="@+id/nav_admin_switch_user"
+                android:icon="@android:drawable/ic_menu_revert"
+                android:title="Giao diện Khách" />
+            <item
+                android:id="@+id/nav_admin_logout"
+                android:icon="@android:drawable/ic_lock_power_off"
+                android:title="Đăng xuất" />
+        </menu>
+    </item>
+</menu>

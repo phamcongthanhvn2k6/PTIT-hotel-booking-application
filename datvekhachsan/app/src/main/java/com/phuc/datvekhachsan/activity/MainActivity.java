@@ -5,8 +5,11 @@ import android.view.View;
 import android.view.WindowManager;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import com.google.android.material.navigation.NavigationView;
 
 import com.phuc.datvekhachsan.adapter.BannerAdapter;
 import com.phuc.datvekhachsan.adapter.HotelListAdapter;
@@ -31,6 +34,9 @@ import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
+    private DrawerLayout drawerLayout;
+    private NavigationView navigationView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,10 +45,60 @@ public class MainActivity extends AppCompatActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
                 WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
 
+        drawerLayout = findViewById(R.id.drawerLayout);
+        navigationView = findViewById(R.id.navigationView);
+        
+        findViewById(R.id.btnMenu).setOnClickListener(v -> {
+            drawerLayout.openDrawer(GravityCompat.START);
+        });
+
+        initNavigation();
+
         initBanner();
         initPopularHotels();
         initRecommendedHotels();
         initSearch();
+    }
+
+    private void initNavigation() {
+        navigationView.setNavigationItemSelectedListener(item -> {
+            int id = item.getItemId();
+            if (id == R.id.nav_home) {
+                drawerLayout.closeDrawer(GravityCompat.START);
+            } else if (id == R.id.nav_profile) {
+                if (com.phuc.datvekhachsan.util.AuthManager.isLoggedIn(this)) {
+                    startActivity(new android.content.Intent(MainActivity.this, ProfileActivity.class));
+                } else {
+                    startActivity(new android.content.Intent(MainActivity.this, LoginActivity.class));
+                }
+            } else if (id == R.id.nav_favorites) {
+                if (com.phuc.datvekhachsan.util.AuthManager.isLoggedIn(this)) {
+                    startActivity(new android.content.Intent(MainActivity.this, FavoriteHotelsActivity.class));
+                } else {
+                    startActivity(new android.content.Intent(MainActivity.this, LoginActivity.class));
+                }
+            } else if (id == R.id.nav_history) {
+                if (com.phuc.datvekhachsan.util.AuthManager.isLoggedIn(this)) {
+                    startActivity(new android.content.Intent(MainActivity.this, com.phuc.datvekhachsan.activity.BookingHistoryActivity.class));
+                } else {
+                    startActivity(new android.content.Intent(MainActivity.this, LoginActivity.class));
+                }
+            } else if (id == R.id.nav_settings) {
+                Toast.makeText(this, "Cài đặt", Toast.LENGTH_SHORT).show();
+            } else if (id == R.id.nav_logout) {
+                new androidx.appcompat.app.AlertDialog.Builder(MainActivity.this)
+                        .setTitle("Xác nhận đăng xuất")
+                        .setMessage("Bạn có chắc chắn muốn đăng xuất không?")
+                        .setPositiveButton("Đăng xuất", (dialog, which) -> {
+                            com.phuc.datvekhachsan.util.AuthManager.logout(MainActivity.this);
+                            updateLoginState();
+                            drawerLayout.closeDrawer(GravityCompat.START);
+                        })
+                        .setNegativeButton("Hủy", null)
+                        .show();
+            }
+            return true;
+        });
     }
 
     private void initSearch() {
@@ -74,26 +130,37 @@ public class MainActivity extends AppCompatActivity {
         android.widget.TextView textViewGreeting = findViewById(R.id.textViewGreeting);
         android.widget.TextView btnLoginRegister = findViewById(R.id.btnLoginRegister);
         android.view.View btnBookingHistory = findViewById(R.id.btnBookingHistory);
+        
+        View headerView = navigationView.getHeaderView(0);
+        android.widget.TextView navHeaderName = headerView.findViewById(R.id.navHeaderName);
+        android.widget.TextView navHeaderEmail = headerView.findViewById(R.id.navHeaderEmail);
 
         if (com.phuc.datvekhachsan.util.AuthManager.isLoggedIn(this)) {
             String fullName = com.phuc.datvekhachsan.util.AuthManager.getFullName(this);
+            String username = com.phuc.datvekhachsan.util.AuthManager.getUsername(this);
             textViewGreeting.setText(getString(R.string.greeting_user_format, fullName));
-            btnLoginRegister.setText(R.string.logout);
-            btnLoginRegister.setOnClickListener(v -> {
-                com.phuc.datvekhachsan.util.AuthManager.logout(this);
-                updateLoginState();
-            });
-            btnBookingHistory.setVisibility(View.VISIBLE);
-            btnBookingHistory.setOnClickListener(v -> {
-                startActivity(new android.content.Intent(MainActivity.this, com.phuc.datvekhachsan.activity.BookingHistoryActivity.class));
-            });
+            
+            // Ẩn nút đăng xuất và lịch sử trên header cho gọn
+            btnLoginRegister.setVisibility(View.GONE);
+            btnBookingHistory.setVisibility(View.GONE);
+            
+            navHeaderName.setText(fullName);
+            navHeaderEmail.setText(username);
+            navigationView.getMenu().findItem(R.id.nav_logout).setVisible(true);
+            navigationView.getMenu().findItem(R.id.nav_history).setVisible(true);
         } else {
             textViewGreeting.setText(R.string.greeting_guest);
             btnLoginRegister.setText(R.string.login);
+            btnLoginRegister.setVisibility(View.VISIBLE);
             btnLoginRegister.setOnClickListener(v -> {
                 startActivity(new android.content.Intent(MainActivity.this, LoginActivity.class));
             });
             btnBookingHistory.setVisibility(View.GONE);
+            
+            navHeaderName.setText("Khách");
+            navHeaderEmail.setText("Vui lòng đăng nhập");
+            navigationView.getMenu().findItem(R.id.nav_logout).setVisible(false);
+            navigationView.getMenu().findItem(R.id.nav_history).setVisible(false);
         }
     }
 

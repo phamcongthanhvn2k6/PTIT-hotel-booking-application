@@ -19,6 +19,12 @@ import com.phuc.datvekhachsan.adapter.RoomTypeAdapter;
 import com.phuc.datvekhachsan.R;
 import com.phuc.datvekhachsan.model.Hotel;
 import com.phuc.datvekhachsan.model.Room;
+import com.phuc.datvekhachsan.network.RetrofitClient;
+import com.phuc.datvekhachsan.network.ApiService;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import java.text.NumberFormat;
 import java.time.LocalDate;
@@ -35,8 +41,6 @@ public class RoomBookingActivity extends AppCompatActivity {
     private RoomGridAdapter roomGridAdapter;
     private int selectedRoomCount = 0;
     private String selectedRoomNamesStr = "";
-    private TextView userGreeting;
-    private Button loginToggleBtn;
 
     private List<Room> allRooms = new ArrayList<>();
     private List<Room> filteredRooms = new ArrayList<>();
@@ -52,18 +56,6 @@ public class RoomBookingActivity extends AppCompatActivity {
 
         hotel = (Hotel) getIntent().getSerializableExtra("hotel");
         findViewById(R.id.backBtn).setOnClickListener(v -> finish());
-
-        // Setup user greeting and quick login/logout
-        userGreeting = findViewById(R.id.userGreeting);
-        loginToggleBtn = findViewById(R.id.loginToggleBtn);
-        loginToggleBtn.setOnClickListener(v -> {
-            if (com.phuc.datvekhachsan.util.AuthManager.isLoggedIn(this)) {
-                com.phuc.datvekhachsan.util.AuthManager.logout(this);
-                updateUserViews(userGreeting, loginToggleBtn);
-            } else {
-                startActivity(new Intent(this, LoginActivity.class));
-            }
-        });
 
         initDateSelection();
         initRoomTypes();
@@ -105,29 +97,16 @@ public class RoomBookingActivity extends AppCompatActivity {
                     hotelName, imageRes, location, selectedRoomNamesStr, rType, date, total, System.currentTimeMillis()
             );
 
-            // Save booking history
-            com.phuc.datvekhachsan.util.BookingManager.addBooking(this, booking, username);
-
-            // Show success dialog
-            showSuccessDialog(booking);
+            // Go to payment activity
+            Intent intent = new Intent(RoomBookingActivity.this, PaymentActivity.class);
+            intent.putExtra("booking", booking);
+            startActivity(intent);
         });
-    }
-
-    private void updateUserViews(TextView userGreeting, Button loginToggleBtn) {
-        if (com.phuc.datvekhachsan.util.AuthManager.isLoggedIn(this)) {
-            String name = com.phuc.datvekhachsan.util.AuthManager.getFullName(this);
-            userGreeting.setText(getString(R.string.greeting_user_format, name));
-            loginToggleBtn.setText(getString(R.string.logout));
-        } else {
-            userGreeting.setText(getString(R.string.greeting_guest));
-            loginToggleBtn.setText(getString(R.string.login));
-        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        updateUserViews(userGreeting, loginToggleBtn);
         // Update confirm button label based on login state
         Button confirmBtn = findViewById(R.id.confirmBookingBtn);
         if (com.phuc.datvekhachsan.util.AuthManager.isLoggedIn(this)) {
@@ -160,7 +139,9 @@ public class RoomBookingActivity extends AppCompatActivity {
         List<String> types = Arrays.asList(
                 "Standard", "Superior", "Deluxe", "Suite", "VIP Suite", "Penthouse"
         );
-        roomTypeAdapter = new RoomTypeAdapter(types);
+        roomTypeAdapter = new RoomTypeAdapter(types, roomType -> {
+            applyFilters();
+        });
         roomTypeRecycler.setAdapter(roomTypeAdapter);
     }
 
@@ -173,23 +154,6 @@ public class RoomBookingActivity extends AppCompatActivity {
         TextView numberSelectedTxt = findViewById(R.id.numberSelectedTxt);
 
         allRooms.clear();
-        // Generate 50 rooms across 10 floors (5 rooms per floor)
-        for (int floor = 1; floor <= 10; floor++) {
-            for (int roomNum = 1; roomNum <= 5; roomNum++) {
-                String roomName = "Phòng " + (floor * 100 + roomNum);
-                Room.RoomStatus status;
-                if ((floor + roomNum) % 3 == 0) {
-                    status = Room.RoomStatus.UNAVAILABLE;
-                } else {
-                    status = Room.RoomStatus.AVAILABLE;
-                }
-                allRooms.add(new Room(status, roomName));
-            }
-        }
-
-        filteredRooms.clear();
-        filteredRooms.addAll(allRooms);
-
         double pricePerRoom = (hotel != null) ? hotel.getPricePerNight() : 1000000;
         NumberFormat formatter = NumberFormat.getInstance(new Locale("vi", "VN"));
 
@@ -201,6 +165,29 @@ public class RoomBookingActivity extends AppCompatActivity {
             totalPriceTxt.setText(getString(R.string.price_currency_format, formatter.format(total)));
         });
         roomRecycler.setAdapter(roomGridAdapter);
+
+        if (hotel != null && hotel.getId() != null) {
+            ApiService apiService = RetrofitClient.getClient(this).create(ApiService.class);
+            apiService.getRoomsByHotelId(hotel.getId()).enqueue(new Callback<List<Room>>() {
+                @Override
+                public void onResponse(Call<List<Room>> call, Response<List<Room>> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        allRooms.clear();
+                        allRooms.addAll(response.body());
+                        applyFilters();
+                    } else {
+                        Toast.makeText(RoomBookingActivity.this, "Không thể tải danh sách phòng", Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<List<Room>> call, Throwable t) {
+                    Toast.makeText(RoomBookingActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        } else {
+            Toast.makeText(this, "Lỗi: Khách sạn không hợp lệ!", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void initFloorFilter() {
@@ -208,16 +195,7 @@ public class RoomBookingActivity extends AppCompatActivity {
         if (chipGroupFloor == null) return;
 
         chipGroupFloor.setOnCheckedStateChangeListener((group, checkedIds) -> {
-            int checkedId = group.getCheckedChipId();
-            if (checkedId != View.NO_ID) {
-                com.google.android.material.chip.Chip chip = group.findViewById(checkedId);
-                if (chip != null && chip.getTag() != null) {
-                    int index = (int) chip.getTag();
-                    applyFloorFilterByIndex(index);
-                }
-            } else {
-                applyFloorFilterByIndex(0);
-            }
+            applyFilters();
         });
 
         String[] floorFilters = new String[]{
@@ -241,6 +219,7 @@ public class RoomBookingActivity extends AppCompatActivity {
     }
 
     private int getFloorFromRoomName(String roomName) {
+        if (roomName == null) return 1;
         try {
             String numStr = roomName.replace("Phòng", "").trim();
             int num = Integer.parseInt(numStr);
@@ -250,32 +229,38 @@ public class RoomBookingActivity extends AppCompatActivity {
         }
     }
 
-    private void applyFloorFilterByIndex(int index) {
+    private void applyFilters() {
         filteredRooms.clear();
-        if (index == 0) {
-            filteredRooms.addAll(allRooms);
-        } else if (index == 1) {
-            for (Room r : allRooms) {
-                int floor = getFloorFromRoomName(r.getName());
-                if (floor >= 1 && floor <= 3) {
-                    filteredRooms.add(r);
-                }
-            }
-        } else if (index == 2) {
-            for (Room r : allRooms) {
-                int floor = getFloorFromRoomName(r.getName());
-                if (floor >= 4 && floor <= 6) {
-                    filteredRooms.add(r);
-                }
-            }
-        } else if (index == 3) {
-            for (Room r : allRooms) {
-                int floor = getFloorFromRoomName(r.getName());
-                if (floor >= 7 && floor <= 10) {
-                    filteredRooms.add(r);
-                }
+        String selectedType = roomTypeAdapter != null ? roomTypeAdapter.getSelectedRoomType() : null;
+        
+        int floorIndex = 0;
+        if (chipGroupFloor != null && chipGroupFloor.getCheckedChipId() != View.NO_ID) {
+            com.google.android.material.chip.Chip chip = chipGroupFloor.findViewById(chipGroupFloor.getCheckedChipId());
+            if (chip != null && chip.getTag() != null) {
+                floorIndex = (int) chip.getTag();
             }
         }
+        
+        for (Room r : allRooms) {
+            boolean matchType = selectedType == null || selectedType.equals(r.getRoomType());
+            boolean matchFloor = false;
+            int floor = getFloorFromRoomName(r.getName());
+            
+            if (floorIndex == 0) {
+                matchFloor = true;
+            } else if (floorIndex == 1 && floor >= 1 && floor <= 3) {
+                matchFloor = true;
+            } else if (floorIndex == 2 && floor >= 4 && floor <= 6) {
+                matchFloor = true;
+            } else if (floorIndex == 3 && floor >= 7 && floor <= 10) {
+                matchFloor = true;
+            }
+            
+            if (matchType && matchFloor) {
+                filteredRooms.add(r);
+            }
+        }
+        
         if (roomGridAdapter != null) {
             roomGridAdapter.updateRooms(filteredRooms);
         }
