@@ -81,29 +81,43 @@ datvekhachsan/
 
 ## 🛠️ Hướng Dẫn Cài Đặt & Khởi Chạy
 
-### Bước 1: Thiết lập Cơ sở dữ liệu MySQL
+### Bước 1: Clone dự án từ GitHub
+1. Mở Terminal (hoặc Git Bash / Command Prompt).
+2. Chạy lệnh clone để tải toàn bộ mã nguồn về máy:
+   ```bash
+   git clone <ĐƯỜNG_DẪN_GIT_CỦA_BẠN>
+   ```
+3. Di chuyển vào thư mục dự án:
+   ```bash
+   cd PTIT-Android-main
+   ```
+
+### Bước 2: Thiết lập Cơ sở dữ liệu MySQL
 1. Khởi động MySQL Server của bạn (ví dụ dùng phần mềm **Laragon** hoặc **XAMPP**). Đảm bảo cổng kết nối MySQL là **3307** (nếu dùng cổng `3306` mặc định, vui lòng sửa lại cấu hình trong file [application.properties](file:///c:/PTIT-Android-main/backend/src/main/resources/application.properties)).
 2. Tạo một cơ sở dữ liệu trống có tên là: `hotel_booking_db`.
 3. Import file cơ sở dữ liệu có sẵn tại thư mục gốc của dự án: [init_db.sql](file:///c:/PTIT-Android-main/init_db.sql).
 
-### Bước 2: Chạy RESTful API Server (Backend)
-1. Mở thư mục dự án `/backend` bằng terminal.
-2. Thực thi lệnh sau để biên dịch và chạy dự án Spring Boot:
+### Bước 3: Mở & Chạy RESTful API Server (Backend)
+1. Bạn có thể mở thư mục gốc bằng các IDE hỗ trợ Java như **IntelliJ IDEA**, **Eclipse** hoặc **Android Studio** để chạy.
+2. Mở Terminal tích hợp trong IDE (hoặc terminal ngoài máy tính).
+3. Thực thi lệnh sau để di chuyển vào thư mục backend, biên dịch và chạy dự án Spring Boot:
    ```bash
    cd backend
    .\mvnw spring-boot:run
    ```
-3. Sau khi khởi chạy thành công, máy chủ API sẽ sẵn sàng tại địa chỉ `http://localhost:8080`.
+4. Sau khi khởi chạy thành công, máy chủ API sẽ sẵn sàng tại địa chỉ `http://localhost:8080`.
 
 > [!NOTE]
 > Mật khẩu mặc định của tất cả tài khoản có sẵn trong DB đều là `123456` (được lưu dưới dạng mã hóa BCrypt).
 > *   **Tài khoản ADMIN:** `admin` | Mật khẩu: `123456`
 > *   **Tài khoản USER tiêu chuẩn:** `phamcongt56@gmail.com` | Mật khẩu: `123456`
 
-### Bước 3: Chạy ứng dụng Android Client
-1. Mở thư mục `/datvekhachsan` bằng **Android Studio**.
-2. Đợi Gradle đồng bộ (Sync) xong tài nguyên.
-3. Chạy ứng dụng trên một thiết bị ảo Android (Emulator) hoặc điện thoại Android thật.
+### Bước 4: Mở & Chạy ứng dụng Android Client
+1. Khởi động **Android Studio**.
+2. Trên màn hình welcome của Android Studio, chọn **Open** (hoặc **File > Open**).
+3. Duyệt đến thư mục dự án vừa clone, chọn thư mục con `/datvekhachsan` và nhấn **OK** để mở.
+4. Đợi Android Studio hoàn tất quá trình đồng bộ (Gradle Sync) để tải các thư viện.
+5. Chọn thiết bị ảo (Emulator) đã tạo sẵn hoặc kết nối điện thoại Android thật vào máy tính. Nhấn nút **Run (▶)** màu xanh lá trên thanh công cụ để cài đặt và chạy ứng dụng.
 
 > [!IMPORTANT]
 > - Thiết bị ảo Android kết nối đến máy chủ localhost thông qua địa chỉ IP đặc biệt: `http://10.0.2.2:8080/`. Địa chỉ này đã được cấu hình sẵn trong [RetrofitClient.java](file:///c:/PTIT-Android-main/datvekhachsan/app/src/main/java/com/phuc/datvekhachsan/network/RetrofitClient.java).
