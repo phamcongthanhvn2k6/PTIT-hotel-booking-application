@@ -24,6 +24,17 @@
         <activity android:name=".activity.HotelListActivity" android:exported="false" />
         <activity android:name=".activity.SearchActivity" android:exported="false" />
         <activity android:name=".activity.BookingHistoryActivity" android:exported="false" />
+        <activity android:name=".activity.FavoriteHotelsActivity" android:exported="false" />
+        <activity android:name=".activity.PaymentActivity" android:exported="false" />
+        <activity android:name=".activity.PaymentSuccessActivity" android:exported="false" />
+        <activity android:name=".activity.ProfileActivity" android:exported="false" />
+        
+        <activity android:name=".activity.admin.AdminBookingListActivity" android:exported="false" />
+        <activity android:name=".activity.admin.AdminDashboardActivity" android:exported="false" />
+        <activity android:name=".activity.admin.AdminHotelEditorActivity" android:exported="false" />
+        <activity android:name=".activity.admin.AdminHotelListActivity" android:exported="false" />
+        <activity android:name=".activity.admin.AdminRoomListActivity" android:exported="false" />
+        <activity android:name=".activity.admin.AdminUserListActivity" android:exported="false" />
 
         <activity android:name=".activity.IntroActivity" android:exported="true">
             <intent-filter>

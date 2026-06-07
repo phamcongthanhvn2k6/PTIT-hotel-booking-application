@@ -17,8 +17,19 @@ public class IntroActivity extends AppCompatActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
                 WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
 
-        findViewById(R.id.startBtn).setOnClickListener(v ->
-                startActivity(new Intent(this, MainActivity.class))
-        );
+        if (com.phuc.datvekhachsan.util.AuthManager.isLoggedIn(this)) {
+            if (com.phuc.datvekhachsan.util.AuthManager.isAdmin(this)) {
+                startActivity(new Intent(this, com.phuc.datvekhachsan.activity.admin.AdminDashboardActivity.class));
+            } else {
+                startActivity(new Intent(this, MainActivity.class));
+            }
+            finish();
+            return;
+        }
+
+        findViewById(R.id.startBtn).setOnClickListener(v -> {
+            startActivity(new Intent(this, MainActivity.class));
+            finish();
+        });
     }
 }

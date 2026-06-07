@@ -26,6 +26,12 @@ public class UserEntity {
     @Column(length = 20)
     private String phone;
 
+    @Column(name = "avatar_url", length = 255)
+    private String avatarUrl;
+
+    @Column(length = 20)
+    private String status = "ACTIVE";
+
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_at", insertable = false, updatable = false)
     private Date createdAt;
@@ -48,6 +54,12 @@ public class UserEntity {
     
     public String getPhone() { return phone; }
     public void setPhone(String phone) { this.phone = phone; }
+
+    public String getAvatarUrl() { return avatarUrl; }
+    public void setAvatarUrl(String avatarUrl) { this.avatarUrl = avatarUrl; }
+
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
     
     public Date getCreatedAt() { return createdAt; }
     public void setCreatedAt(Date createdAt) { this.createdAt = createdAt; }

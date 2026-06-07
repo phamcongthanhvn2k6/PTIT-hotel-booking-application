@@ -47,7 +47,12 @@ public class AdminBookingAdapter extends RecyclerView.Adapter<AdminBookingAdapte
     public void onBindViewHolder(@NonNull BookingViewHolder holder, int position) {
         Booking booking = bookingList.get(position);
         
-        holder.txtBookingHotel.setText("Mã phòng: " + booking.getRoomId() + " (Người đặt: " + booking.getUserId() + ")");
+        String roomDisplay = booking.getRoom() != null && booking.getRoom().getName() != null 
+                ? booking.getRoom().getName() : String.valueOf(booking.getRoomId());
+        String userDisplay = booking.getUser() != null && booking.getUser().getFullName() != null 
+                ? booking.getUser().getFullName() : String.valueOf(booking.getUserId());
+                
+        holder.txtBookingHotel.setText("Phòng: " + roomDisplay + " (Khách: " + userDisplay + ")");
         
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault());
         String dates = "";

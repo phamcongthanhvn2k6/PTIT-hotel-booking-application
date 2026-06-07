@@ -23,7 +23,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class AdminBookingListActivity extends AppCompatActivity {
+public class AdminBookingListActivity extends BaseAdminActivity {
 
     private RecyclerView rvAdminBookings;
     private ProgressBar progressBar;
@@ -33,10 +33,8 @@ public class AdminBookingListActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_admin_booking_list);
-
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
-                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+        setContentLayout(R.layout.activity_admin_booking_list);
+        setAdminTitle("Quản lý Đặt phòng");
 
         rvAdminBookings = findViewById(R.id.rvAdminBookings);
         progressBar = findViewById(R.id.progressBar);
@@ -45,8 +43,6 @@ public class AdminBookingListActivity extends AppCompatActivity {
         adapter = new AdminBookingAdapter(this, bookingList);
         rvAdminBookings.setLayoutManager(new LinearLayoutManager(this));
         rvAdminBookings.setAdapter(adapter);
-
-        findViewById(R.id.btnBack).setOnClickListener(v -> finish());
 
         loadBookings();
     }

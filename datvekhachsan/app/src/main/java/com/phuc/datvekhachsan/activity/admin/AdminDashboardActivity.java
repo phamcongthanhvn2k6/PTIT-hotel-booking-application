@@ -1,20 +1,32 @@
 package com.phuc.datvekhachsan.activity.admin;
 
+import android.content.Intent;
 import android.os.Bundle;
-import android.view.WindowManager;
-
-import androidx.appcompat.app.AppCompatActivity;
+import android.widget.TextView;
 
 import com.phuc.datvekhachsan.R;
+import com.phuc.datvekhachsan.util.AuthManager;
 
-public class AdminDashboardActivity extends AppCompatActivity {
+public class AdminDashboardActivity extends BaseAdminActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_admin_dashboard);
+        setContentLayout(R.layout.activity_admin_dashboard);
+        setAdminTitle("Thống kê (Dashboard)");
 
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
-                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+        findViewById(R.id.cardManageUsers).setOnClickListener(v -> {
+            startActivity(new Intent(this, AdminUserListActivity.class));
+        });
+
+        findViewById(R.id.cardManageHotels).setOnClickListener(v -> {
+            startActivity(new Intent(this, AdminHotelListActivity.class));
+        });
+
+        TextView textViewGreeting = findViewById(R.id.textViewAdminGreeting);
+        if (AuthManager.isLoggedIn(this)) {
+            String fullName = AuthManager.getFullName(this);
+            textViewGreeting.setText("Chào mừng, " + fullName);
+        }
     }
 }

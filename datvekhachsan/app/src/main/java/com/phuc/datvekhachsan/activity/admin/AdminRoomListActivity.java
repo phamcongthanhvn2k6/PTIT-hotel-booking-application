@@ -24,28 +24,23 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class AdminRoomListActivity extends AppCompatActivity {
+public class AdminRoomListActivity extends BaseAdminActivity {
 
     private RecyclerView rvAdminRooms;
     private ProgressBar progressBar;
     private AdminRoomAdapter adapter;
     private List<Room> roomList;
-    private Long hotelId = -1L;
-    private String hotelName = "";
+    private Long hotelId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_admin_room_list);
+        setContentLayout(R.layout.activity_admin_room_list);
 
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
-                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+        hotelId = getIntent().getLongExtra("HOTEL_ID", -1);
+        String hotelName = getIntent().getStringExtra("HOTEL_NAME");
 
-        if (getIntent().hasExtra("HOTEL_ID")) {
-            hotelId = getIntent().getLongExtra("HOTEL_ID", -1);
-            hotelName = getIntent().getStringExtra("HOTEL_NAME");
-            ((TextView) findViewById(R.id.txtHotelTitle)).setText("Phòng: " + hotelName);
-        }
+        setAdminTitle(hotelName != null ? "Phòng: " + hotelName : "Quản lý Phòng");
 
         rvAdminRooms = findViewById(R.id.rvAdminRooms);
         progressBar = findViewById(R.id.progressBar);
@@ -55,13 +50,9 @@ public class AdminRoomListActivity extends AppCompatActivity {
         rvAdminRooms.setLayoutManager(new LinearLayoutManager(this));
         rvAdminRooms.setAdapter(adapter);
 
-        findViewById(R.id.btnBack).setOnClickListener(v -> finish());
-        
-        findViewById(R.id.btnAddRoom).setOnClickListener(v -> {
-            Toast.makeText(this, "Thêm phòng", Toast.LENGTH_SHORT).show();
-            // Intent intent = new Intent(this, AdminRoomEditorActivity.class);
-            // intent.putExtra("HOTEL_ID", hotelId);
-            // startActivity(intent);
+        setRightAction(R.drawable.ic_add, v -> {
+            // TODO: Mở trang thêm phòng
+            Toast.makeText(this, "Tính năng thêm phòng đang phát triển", Toast.LENGTH_SHORT).show();
         });
     }
 

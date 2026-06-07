@@ -24,7 +24,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class AdminHotelListActivity extends AppCompatActivity {
+public class AdminHotelListActivity extends BaseAdminActivity {
 
     private RecyclerView rvAdminHotels;
     private ProgressBar progressBar;
@@ -34,10 +34,8 @@ public class AdminHotelListActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_admin_hotel_list);
-
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
-                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+        setContentLayout(R.layout.activity_admin_hotel_list);
+        setAdminTitle("Quản lý Khách sạn");
 
         rvAdminHotels = findViewById(R.id.rvAdminHotels);
         progressBar = findViewById(R.id.progressBar);
@@ -47,9 +45,7 @@ public class AdminHotelListActivity extends AppCompatActivity {
         rvAdminHotels.setLayoutManager(new LinearLayoutManager(this));
         rvAdminHotels.setAdapter(adapter);
 
-        findViewById(R.id.btnBack).setOnClickListener(v -> finish());
-        
-        findViewById(R.id.btnAddHotel).setOnClickListener(v -> {
+        setRightAction(R.drawable.ic_add, v -> {
             Intent intent = new Intent(this, AdminHotelEditorActivity.class);
             startActivity(intent);
         });

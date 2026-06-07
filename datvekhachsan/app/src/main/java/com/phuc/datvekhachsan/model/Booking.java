@@ -7,8 +7,19 @@ public class Booking implements Serializable {
     private Long id;
     private Long userId;
     private Long roomId;
+
+    @com.google.gson.annotations.SerializedName("user")
+    private User user;
+
+    @com.google.gson.annotations.SerializedName("room")
+    private Room room;
+
+    @com.google.gson.annotations.SerializedName("checkInDate")
     private Date checkInDateObj;
+
+    @com.google.gson.annotations.SerializedName("checkOutDate")
     private Date checkOutDateObj;
+
     private double totalPrice;
     private String status;
 
@@ -46,11 +57,23 @@ public class Booking implements Serializable {
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
-    public Long getUserId() { return userId; }
+    public Long getUserId() { 
+        if (user != null) return user.getId();
+        return userId; 
+    }
     public void setUserId(Long userId) { this.userId = userId; }
 
-    public Long getRoomId() { return roomId; }
+    public Long getRoomId() { 
+        if (room != null) return room.getId();
+        return roomId; 
+    }
     public void setRoomId(Long roomId) { this.roomId = roomId; }
+
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
+
+    public Room getRoom() { return room; }
+    public void setRoom(Room room) { this.room = room; }
 
     public Date getCheckInDateObj() { return checkInDateObj; }
     public void setCheckInDateObj(Date checkInDateObj) { this.checkInDateObj = checkInDateObj; }

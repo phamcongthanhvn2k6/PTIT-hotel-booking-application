@@ -27,7 +27,9 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/api/hotels/**").permitAll() // Cho phép xem khách sạn không cần đăng nhập
+                .requestMatchers("/api/hotels/**").permitAll()
+                .requestMatchers("/uploads/**").permitAll() // Cho phép xem ảnh public
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

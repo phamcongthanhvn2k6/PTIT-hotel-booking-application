@@ -23,7 +23,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class AdminUserListActivity extends AppCompatActivity {
+public class AdminUserListActivity extends BaseAdminActivity {
 
     private RecyclerView rvAdminUsers;
     private ProgressBar progressBar;
@@ -33,10 +33,8 @@ public class AdminUserListActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_admin_user_list);
-
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
-                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS);
+        setContentLayout(R.layout.activity_admin_user_list);
+        setAdminTitle("Quản lý Người dùng");
 
         rvAdminUsers = findViewById(R.id.rvAdminUsers);
         progressBar = findViewById(R.id.progressBar);
@@ -45,8 +43,6 @@ public class AdminUserListActivity extends AppCompatActivity {
         adapter = new AdminUserAdapter(this, userList);
         rvAdminUsers.setLayoutManager(new LinearLayoutManager(this));
         rvAdminUsers.setAdapter(adapter);
-
-        findViewById(R.id.btnBack).setOnClickListener(v -> finish());
 
         loadUsers();
     }

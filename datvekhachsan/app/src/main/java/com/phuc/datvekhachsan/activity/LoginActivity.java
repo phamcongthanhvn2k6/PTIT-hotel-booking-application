@@ -57,6 +57,7 @@ public class LoginActivity extends AppCompatActivity {
                             User user = new User();
                             user.setUsername(username);
                             user.setRole(role);
+                            user.setFullName(username); // Fallback so isLoggedIn() doesn't fail
                             com.phuc.datvekhachsan.util.AuthManager.login(LoginActivity.this, user);
                             Toast.makeText(LoginActivity.this, "Đăng nhập thành công", Toast.LENGTH_SHORT).show();
                             

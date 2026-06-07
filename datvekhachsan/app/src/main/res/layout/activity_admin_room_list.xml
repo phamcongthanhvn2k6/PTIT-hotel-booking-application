@@ -5,48 +5,12 @@
     android:layout_height="match_parent"
     android:background="#F4F7FE">
 
-    <LinearLayout
-        android:id="@+id/headerAdminRoom"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:layout_marginTop="48dp"
-        android:padding="16dp"
-        app:layout_constraintTop_toTopOf="parent">
-        
-        <ImageView
-            android:id="@+id/btnBack"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:src="@drawable/ic_arrow_back"
-            android:padding="8dp"/>
-            
-        <TextView
-            android:id="@+id/txtHotelTitle"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Danh sách phòng"
-            android:textColor="#2B3674"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:layout_marginStart="16dp"/>
-
-        <ImageView
-            android:id="@+id/btnAddRoom"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:src="@drawable/ic_add"
-            android:padding="8dp"/>
-    </LinearLayout>
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvAdminRooms"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:padding="8dp"
-        app:layout_constraintTop_toBottomOf="@id/headerAdminRoom"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"/>
         
     <ProgressBar
