@@ -45,6 +45,12 @@ public class AuthController {
         }
 
         final UserDetails userDetails = userDetailsService.loadUserByUsername(authRequest.getUsername());
+        
+        UserEntity userEntity = userRepository.findByUsername(authRequest.getUsername()).orElse(null);
+        if (userEntity != null && "LOCKED".equals(userEntity.getStatus())) {
+            return ResponseEntity.status(403).body(new AuthResponse(null, "Tài khoản của bạn đã bị khóa do vi phạm chính sách.", null));
+        }
+
         final String jwt = jwtUtil.generateToken(userDetails);
         
         String role = userDetails.getAuthorities().iterator().next().getAuthority();

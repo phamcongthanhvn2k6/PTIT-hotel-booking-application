@@ -45,6 +45,7 @@ public class DetailImageSliderAdapter extends RecyclerView.Adapter<DetailImageSl
             Glide.with(holder.itemView.getContext())
                     .load((String) image)
                     .placeholder(R.drawable.hotel_intro)
+                    .error(R.drawable.ic_hotel)
                     .into(holder.imageView);
         }
     }

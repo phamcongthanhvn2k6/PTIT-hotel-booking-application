@@ -52,13 +52,32 @@ public class LoginActivity extends AppCompatActivity {
                             android.content.SharedPreferences prefs = getSharedPreferences("app_prefs", MODE_PRIVATE);
                             prefs.edit().putString("jwt_token", token).apply();
 
-                            User user = new User(username, "", "USER", "");
+                            String role = body.has("role") && !body.get("role").isJsonNull() ? body.get("role").getAsString() : "ROLE_USER";
+
+                            User user = new User();
+                            user.setUsername(username);
+                            user.setRole(role);
+                            user.setFullName(username); // Fallback so isLoggedIn() doesn't fail
                             com.phuc.datvekhachsan.util.AuthManager.login(LoginActivity.this, user);
                             Toast.makeText(LoginActivity.this, "Đăng nhập thành công", Toast.LENGTH_SHORT).show();
-                            startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                            
+                            if (com.phuc.datvekhachsan.util.AuthManager.isAdmin(LoginActivity.this)) {
+                                startActivity(new Intent(LoginActivity.this, com.phuc.datvekhachsan.activity.admin.AdminDashboardActivity.class));
+                            } else {
+                                startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                            }
                             finish();
                         } else {
                             Toast.makeText(LoginActivity.this, "Đăng nhập thất bại", Toast.LENGTH_SHORT).show();
+                        }
+                    } else if (response.code() == 403) {
+                        try {
+                            String errorStr = response.errorBody() != null ? response.errorBody().string() : "";
+                            JsonObject errorBody = new com.google.gson.JsonParser().parse(errorStr).getAsJsonObject();
+                            String message = errorBody.has("message") ? errorBody.get("message").getAsString() : "Tài khoản của bạn đã bị khóa.";
+                            Toast.makeText(LoginActivity.this, message, Toast.LENGTH_LONG).show();
+                        } catch (Exception e) {
+                            Toast.makeText(LoginActivity.this, "Tài khoản của bạn đã bị khóa do vi phạm chính sách.", Toast.LENGTH_LONG).show();
                         }
                     } else {
                         Toast.makeText(LoginActivity.this, "Sai tên đăng nhập hoặc mật khẩu", Toast.LENGTH_SHORT).show();

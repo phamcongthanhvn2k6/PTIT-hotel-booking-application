@@ -102,14 +102,35 @@
                     </LinearLayout>
 
                     <!-- Location Row -->
-                    <TextView
-                        android:id="@+id/locationTxt"
+                    <LinearLayout
+                        android:id="@+id/btnMap"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
-                        android:text="@string/hotel_detail_location_label"
-                        android:textColor="@color/text_muted"
-                        android:textSize="14sp" />
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:clickable="true"
+                        android:focusable="true">
+
+                        <TextView
+                            android:id="@+id/locationTxt"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="@string/hotel_detail_location_label"
+                            android:textColor="@color/text_muted"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Bản đồ 🗺️"
+                            android:textColor="#4285F4"
+                            android:textSize="13sp"
+                            android:textStyle="bold"
+                            android:paddingStart="8dp" />
+                    </LinearLayout>
 
                     <!-- Amenities Tags Recycler -->
                     <androidx.recyclerview.widget.RecyclerView
@@ -181,6 +202,19 @@
         android:padding="10dp"
         android:src="@drawable/ic_back"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Favorite Button -->
+    <ImageView
+        android:id="@+id/btnFavorite"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="48dp"
+        android:background="@drawable/circle_translucent_bg"
+        android:padding="10dp"
+        android:src="@drawable/ic_favorite_border"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <!-- Sticky Bottom Bar -->

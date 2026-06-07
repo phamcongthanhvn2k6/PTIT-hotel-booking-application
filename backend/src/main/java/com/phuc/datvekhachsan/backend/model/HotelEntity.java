@@ -4,8 +4,11 @@ import jakarta.persistence.*;
 import java.util.List;
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 @Entity
 @Table(name = "hotels")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class HotelEntity {
 
     @Id

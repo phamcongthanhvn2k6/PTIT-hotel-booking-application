@@ -18,10 +18,11 @@ import java.util.List;
 public class RoomGridAdapter extends RecyclerView.Adapter<RoomGridAdapter.ViewHolder> {
     private List<Room> rooms;
     private final ArrayList<String> selectedRoomNames = new ArrayList<>();
+    private final ArrayList<Long> selectedRoomIds = new ArrayList<>();
     private final OnRoomSelectedListener listener;
 
     public interface OnRoomSelectedListener {
-        void onRoomSelected(String selectedNames, int count);
+        void onRoomSelected(String selectedNames, ArrayList<Long> selectedIds, int count);
     }
 
     public RoomGridAdapter(List<Room> rooms, OnRoomSelectedListener listener) {
@@ -81,18 +82,20 @@ public class RoomGridAdapter extends RecyclerView.Adapter<RoomGridAdapter.ViewHo
                 case AVAILABLE:
                     r.setStatus(Room.RoomStatus.SELECTED);
                     selectedRoomNames.add(r.getName());
+                    selectedRoomIds.add(r.getId());
                     notifyItemChanged(pos);
                     break;
                 case SELECTED:
                     r.setStatus(Room.RoomStatus.AVAILABLE);
                     selectedRoomNames.remove(r.getName());
+                    selectedRoomIds.remove(r.getId());
                     notifyItemChanged(pos);
                     break;
                 default:
                     break;
             }
             String selected = String.join(", ", selectedRoomNames);
-            listener.onRoomSelected(selected, selectedRoomNames.size());
+            listener.onRoomSelected(selected, selectedRoomIds, selectedRoomNames.size());
         });
     }
 

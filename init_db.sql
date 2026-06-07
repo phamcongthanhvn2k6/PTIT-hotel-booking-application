@@ -18,6 +18,8 @@ CREATE TABLE IF NOT EXISTS users (
     role VARCHAR(20) NOT NULL DEFAULT 'ROLE_USER',
     full_name VARCHAR(100),
     phone VARCHAR(20),
+    avatar_url VARCHAR(255),
+    status VARCHAR(20) DEFAULT 'ACTIVE',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -186,11 +188,30 @@ INSERT INTO rooms (hotel_id, room_number, room_type, price_per_night, status) VA
 (31, 'RV1', 'Deluxe', 6500000.00, 'AVAILABLE'), (31, 'RV2', 'Panorama Suite', 10500000.00, 'AVAILABLE');
 
 -- Thêm User
-INSERT INTO users (username, password, role, full_name, phone) VALUES
-('admin', '$2a$10$B2SvAO3vvcoWGp9ATpp0e.a3fT2yJCOUELfnP0tkWPz9cJdEFuUvi', 'ROLE_ADMIN', 'Quản trị viên', '0123456789'),
-('phamcongt56@gmail.com', '$2a$10$B2SvAO3vvcoWGp9ATpp0e.a3fT2yJCOUELfnP0tkWPz9cJdEFuUvi', 'ROLE_USER', 'Phạm Công Thành', '0988888888'),
-('phuc', '$2a$10$9XN62E2H.1A9ZpU9A3jAmuUvA/h25Q5q1uE1O6y/6J1K/sA3.e9m2', 'ROLE_USER', 'Phúc Nguyễn', '0987654321'),
-('khachhang1', '$2a$10$9XN62E2H.1A9ZpU9A3jAmuUvA/h25Q5q1uE1O6y/6J1K/sA3.e9m2', 'ROLE_USER', 'Nguyễn Văn A', '0912345678');
+INSERT INTO users (username, password, role, full_name, phone, status, avatar_url) VALUES
+('admin', '$2a$10$B2SvAO3vvcoWGp9ATpp0e.a3fT2yJCOUELfnP0tkWPz9cJdEFuUvi', 'ROLE_ADMIN', 'Quản trị viên', '0123456789', 'ACTIVE', 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png'),
+('phamcongt56@gmail.com', '$2a$10$B2SvAO3vvcoWGp9ATpp0e.a3fT2yJCOUELfnP0tkWPz9cJdEFuUvi', 'ROLE_USER', 'Phạm Công Thành', '0988888888', 'ACTIVE', 'https://cdn-icons-png.flaticon.com/512/147/147144.png'),
+('phuc', '$2a$10$9XN62E2H.1A9ZpU9A3jAmuUvA/h25Q5q1uE1O6y/6J1K/sA3.e9m2', 'ROLE_USER', 'Phúc Nguyễn', '0987654321', 'ACTIVE', NULL),
+('khachhang1', '$2a$10$9XN62E2H.1A9ZpU9A3jAmuUvA/h25Q5q1uE1O6y/6J1K/sA3.e9m2', 'ROLE_USER', 'Nguyễn Văn A', '0912345678', 'ACTIVE', NULL),
+('baduser1', '$2a$10$9XN62E2H.1A9ZpU9A3jAmuUvA/h25Q5q1uE1O6y/6J1K/sA3.e9m2', 'ROLE_USER', 'Trần Văn Vi Phạm', '0999999991', 'LOCKED', NULL),
+('baduser2', '$2a$10$9XN62E2H.1A9ZpU9A3jAmuUvA/h25Q5q1uE1O6y/6J1K/sA3.e9m2', 'ROLE_USER', 'Lê Thị Spam', '0999999992', 'LOCKED', NULL),
+('vipuser', '$2a$10$9XN62E2H.1A9ZpU9A3jAmuUvA/h25Q5q1uE1O6y/6J1K/sA3.e9m2', 'ROLE_USER', 'Trần Thị VIP', '0911111111', 'ACTIVE', 'https://cdn-icons-png.flaticon.com/512/4140/4140048.png'),
+('testuser', '$2a$10$9XN62E2H.1A9ZpU9A3jAmuUvA/h25Q5q1uE1O6y/6J1K/sA3.e9m2', 'ROLE_USER', 'Lý Văn Test', '0922222222', 'ACTIVE', NULL);
+
+CREATE TABLE IF NOT EXISTS favorite_hotels (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY, 
+    user_id BIGINT NOT NULL, 
+    hotel_id BIGINT NOT NULL, 
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE, 
+    FOREIGN KEY (hotel_id) REFERENCES hotels(id) ON DELETE CASCADE
+);
+
+-- Lịch sử đặt phòng mẫu cho user phamcongt56@gmail.com (id=2)
+INSERT INTO bookings (user_id, room_id, check_in_date, check_out_date, total_price, status, created_at) VALUES
+(2, 1, '2023-01-10', '2023-01-12', 3000000.00, 'CONFIRMED', '2023-01-05 10:00:00'),
+(2, 5, '2023-05-20', '2023-05-25', 12500000.00, 'CONFIRMED', '2023-05-01 15:30:00'),
+(2, 10, '2023-11-01', '2023-11-03', 8000000.00, 'CONFIRMED', '2023-10-20 09:15:00');
 
 -- Một số đánh giá mẫu đa dạng hơn
 INSERT INTO reviews (user_id, hotel_id, rating, comment) VALUES
