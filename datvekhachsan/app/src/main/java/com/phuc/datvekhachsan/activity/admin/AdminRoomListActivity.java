@@ -1,6 +1,7 @@
 package com.phuc.datvekhachsan.activity.admin;
 
 import android.os.Bundle;
+import android.content.Intent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ProgressBar;
@@ -50,9 +51,12 @@ public class AdminRoomListActivity extends BaseAdminActivity {
         rvAdminRooms.setLayoutManager(new LinearLayoutManager(this));
         rvAdminRooms.setAdapter(adapter);
 
+        setLeftAction(R.drawable.ic_arrow_back, v -> finish());
+
         setRightAction(R.drawable.ic_add, v -> {
-            // TODO: Mở trang thêm phòng
-            Toast.makeText(this, "Tính năng thêm phòng đang phát triển", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(this, AdminRoomEditorActivity.class);
+            intent.putExtra("HOTEL_ID", hotelId);
+            startActivity(intent);
         });
     }
 

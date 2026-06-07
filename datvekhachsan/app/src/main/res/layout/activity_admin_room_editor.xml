@@ -6,7 +6,7 @@
     android:background="#F4F7FE">
 
     <LinearLayout
-        android:id="@+id/headerAdminHotelEditor"
+        android:id="@+id/headerAdminRoomEditor"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -28,7 +28,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Thêm Khách sạn"
+            android:text="Thêm Phòng"
             android:textColor="#2B3674"
             android:textSize="20sp"
             android:textStyle="bold"
@@ -38,7 +38,7 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/headerAdminHotelEditor"
+        app:layout_constraintTop_toBottomOf="@id/headerAdminRoomEditor"
         app:layout_constraintBottom_toBottomOf="parent">
 
         <LinearLayout
@@ -47,70 +47,50 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <ImageView
-                android:id="@+id/imgHotelPreview"
-                android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:scaleType="centerCrop"
-                android:src="@drawable/ic_hotel"
-                android:background="#E9EDF7"
-                app:tint="#A3AED0"
-                android:padding="48dp"/>
-
-            <Button
-                android:id="@+id/btnUploadImage"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Chọn &amp; Upload Ảnh"
-                android:layout_gravity="center"
-                android:layout_marginTop="8dp"
-                android:backgroundTint="#4318FF"
-                android:textColor="@color/white"/>
-
-            <!-- Name -->
+            <!-- Room Number -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Tên khách sạn *"
+                android:text="Số phòng *"
                 android:textColor="#2B3674"
                 android:textStyle="bold"
                 android:layout_marginTop="16dp"/>
             <EditText
-                android:id="@+id/edtHotelName"
+                android:id="@+id/edtRoomNumber"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:background="@drawable/white_bg"
                 android:paddingHorizontal="16dp"
                 android:layout_marginTop="8dp"
-                android:hint="Nhập tên khách sạn"/>
+                android:hint="VD: 101, 102..."/>
 
-            <!-- Location -->
+            <!-- Room Type -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Vị trí *"
+                android:text="Loại phòng *"
                 android:textColor="#2B3674"
                 android:textStyle="bold"
                 android:layout_marginTop="16dp"/>
             <EditText
-                android:id="@+id/edtHotelLocation"
+                android:id="@+id/edtRoomType"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:background="@drawable/white_bg"
                 android:paddingHorizontal="16dp"
                 android:layout_marginTop="8dp"
-                android:hint="VD: Hà Nội, Đà Nẵng..."/>
+                android:hint="VD: Standard, Deluxe..."/>
 
             <!-- Price -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Giá cơ bản/đêm (VNĐ) *"
+                android:text="Giá mỗi đêm (VNĐ) *"
                 android:textColor="#2B3674"
                 android:textStyle="bold"
                 android:layout_marginTop="16dp"/>
             <EditText
-                android:id="@+id/edtHotelPrice"
+                android:id="@+id/edtRoomPrice"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:background="@drawable/white_bg"
@@ -119,32 +99,30 @@
                 android:inputType="numberDecimal"
                 android:hint="VD: 500000"/>
 
-            <!-- Description -->
+            <!-- Status -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Mô tả"
+                android:text="Trạng thái *"
                 android:textColor="#2B3674"
                 android:textStyle="bold"
                 android:layout_marginTop="16dp"/>
-            <EditText
-                android:id="@+id/edtHotelDescription"
+                
+            <Spinner
+                android:id="@+id/spinnerRoomStatus"
                 android:layout_width="match_parent"
-                android:layout_height="120dp"
+                android:layout_height="50dp"
                 android:background="@drawable/white_bg"
-                android:padding="16dp"
-                android:layout_marginTop="8dp"
-                android:gravity="top|start"
-                android:inputType="textMultiLine"
-                android:hint="Nhập mô tả về khách sạn..."/>
+                android:paddingHorizontal="16dp"
+                android:layout_marginTop="8dp"/>
 
             <Button
-                android:id="@+id/btnSaveHotel"
+                android:id="@+id/btnSaveRoom"
                 android:layout_width="match_parent"
                 android:layout_height="54dp"
                 android:layout_marginTop="32dp"
                 android:layout_marginBottom="32dp"
-                android:text="LƯU KHÁCH SẠN"
+                android:text="LƯU PHÒNG"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:textColor="@color/white"

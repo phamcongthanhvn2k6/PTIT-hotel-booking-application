@@ -20,7 +20,7 @@ import retrofit2.Response;
 
 public class AdminDashboardActivity extends BaseAdminActivity {
 
-    private TextView txtTotalRevenue, txtTotalUsers, txtTotalHotels, txtTotalBookings;
+    private TextView txtExpectedRevenue, txtActualRevenue, txtTotalUsers, txtTotalHotels, txtTotalBookings;
     private ProgressBar progressBarStats;
     private GridLayout statsGrid;
 
@@ -30,7 +30,8 @@ public class AdminDashboardActivity extends BaseAdminActivity {
         setContentLayout(R.layout.activity_admin_dashboard);
         setAdminTitle("Thống kê (Dashboard)");
 
-        txtTotalRevenue = findViewById(R.id.txtTotalRevenue);
+        txtExpectedRevenue = findViewById(R.id.txtExpectedRevenue);
+        txtActualRevenue = findViewById(R.id.txtActualRevenue);
         txtTotalUsers = findViewById(R.id.txtTotalUsers);
         txtTotalHotels = findViewById(R.id.txtTotalHotels);
         txtTotalBookings = findViewById(R.id.txtTotalBookings);
@@ -61,14 +62,16 @@ public class AdminDashboardActivity extends BaseAdminActivity {
                     long totalUsers = stats.has("totalUsers") ? stats.get("totalUsers").getAsLong() : 0;
                     long totalHotels = stats.has("totalHotels") ? stats.get("totalHotels").getAsLong() : 0;
                     long totalBookings = stats.has("totalBookings") ? stats.get("totalBookings").getAsLong() : 0;
-                    double totalRevenue = stats.has("totalRevenue") ? stats.get("totalRevenue").getAsDouble() : 0;
+                    double actualRevenue = stats.has("actualRevenue") ? stats.get("actualRevenue").getAsDouble() : 0;
+                    double expectedRevenue = stats.has("expectedRevenue") ? stats.get("expectedRevenue").getAsDouble() : 0;
 
                     java.text.NumberFormat formatter = java.text.NumberFormat.getInstance(new java.util.Locale("vi", "VN"));
                     
                     txtTotalUsers.setText(String.valueOf(totalUsers));
                     txtTotalHotels.setText(String.valueOf(totalHotels));
                     txtTotalBookings.setText(String.valueOf(totalBookings));
-                    txtTotalRevenue.setText(formatter.format(totalRevenue) + "đ");
+                    txtActualRevenue.setText(formatter.format(actualRevenue) + "đ");
+                    txtExpectedRevenue.setText(formatter.format(expectedRevenue) + "đ");
                     
                     statsGrid.setVisibility(View.VISIBLE);
                     setupChart(totalUsers, totalHotels, totalBookings);

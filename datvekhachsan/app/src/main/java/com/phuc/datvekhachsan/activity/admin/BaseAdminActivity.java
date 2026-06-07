@@ -65,6 +65,14 @@ public class BaseAdminActivity extends AppCompatActivity {
         }
     }
 
+    protected void setLeftAction(int iconResId, View.OnClickListener listener) {
+        ImageView btnMenuAdmin = findViewById(R.id.btnMenuAdmin);
+        if (btnMenuAdmin != null) {
+            btnMenuAdmin.setImageResource(iconResId);
+            btnMenuAdmin.setOnClickListener(listener);
+        }
+    }
+
     protected void setRightAction(int iconResId, View.OnClickListener listener) {
         if (btnAdminRightAction != null) {
             btnAdminRightAction.setImageResource(iconResId);
