@@ -34,7 +34,10 @@ public interface ApiService {
     Call<Hotel> getHotelById(@Path("id") Long id);
 
     @GET("api/rooms/hotel/{hotelId}")
-    Call<List<Room>> getRoomsByHotelId(@Path("hotelId") Long hotelId);
+    Call<List<Room>> getRoomsByHotelId(
+        @Path("hotelId") Long hotelId,
+        @Query("checkInDate") String checkInDate
+    );
 
     @POST("api/bookings")
     Call<JsonObject> createBooking(@Body JsonObject request);

@@ -50,26 +50,75 @@ public class PaymentActivity extends AppCompatActivity {
         Button btnConfirm = findViewById(R.id.btnConfirmPayment);
         btnConfirm.setOnClickListener(v -> {
             int selectedId = rgPaymentMethods.getCheckedRadioButtonId();
-            String method = "";
-            if (selectedId == R.id.rbPayAtCheckIn) {
-                method = "Thanh toán tại nơi check-in";
-            } else if (selectedId == R.id.rbPayOnline) {
-                method = "Thanh toán online";
-                Toast.makeText(this, "Chức năng thanh toán online sẽ được cập nhật sau", Toast.LENGTH_SHORT).show();
-                // We can still allow them to proceed or block them. The prompt says "sẽ bổ sung sau", meaning it's a placeholder.
-                // Let's just pretend it succeeds or we can force them to use check-in for now.
-                // Let's allow them to proceed with "Thanh toán online" as a mock.
+            if (selectedId == -1) {
+                Toast.makeText(this, "Vui lòng chọn phương thức thanh toán", Toast.LENGTH_SHORT).show();
+                return;
             }
 
-            // Save booking history since payment is confirmed
-            String username = com.phuc.datvekhachsan.util.AuthManager.getUsername(this);
-            com.phuc.datvekhachsan.util.BookingManager.addBooking(this, booking, username);
+            btnConfirm.setEnabled(false);
+            btnConfirm.setText("Đang xử lý...");
 
-            Intent intent = new Intent(this, PaymentSuccessActivity.class);
-            intent.putExtra("booking", booking);
-            intent.putExtra("payment_method", method);
-            startActivity(intent);
-            finish(); // Close this payment activity
+            String method = "Thanh toán tại nơi check-in";
+            if (selectedId == R.id.rbPayOnline) {
+                method = "Thanh toán online";
+            }
+
+            // Call API to save booking
+            com.google.gson.JsonObject request = new com.google.gson.JsonObject();
+            
+            com.google.gson.JsonArray roomIdsArray = new com.google.gson.JsonArray();
+            if (booking.getRoomIds() != null) {
+                for (Long rId : booking.getRoomIds()) {
+                    roomIdsArray.add(rId);
+                }
+            } else if (booking.getRoomId() != null) {
+                roomIdsArray.add(booking.getRoomId());
+            }
+            request.add("roomIds", roomIdsArray);
+            
+            java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
+            request.addProperty("checkInDate", sdf.format(booking.getCheckInDateObj()));
+            request.addProperty("checkOutDate", sdf.format(booking.getCheckOutDateObj()));
+            request.addProperty("totalPrice", booking.getTotalPrice());
+
+            final String finalMethod = method;
+
+            com.phuc.datvekhachsan.network.ApiService apiService = com.phuc.datvekhachsan.network.RetrofitClient.getClient(this).create(com.phuc.datvekhachsan.network.ApiService.class);
+            apiService.createBooking(request).enqueue(new retrofit2.Callback<com.google.gson.JsonObject>() {
+                @Override
+                public void onResponse(retrofit2.Call<com.google.gson.JsonObject> call, retrofit2.Response<com.google.gson.JsonObject> response) {
+                    if (response.isSuccessful()) {
+                        String username = com.phuc.datvekhachsan.util.AuthManager.getUsername(PaymentActivity.this);
+                        com.phuc.datvekhachsan.util.BookingManager.addBooking(PaymentActivity.this, booking, username);
+
+                        Intent intent = new Intent(PaymentActivity.this, PaymentSuccessActivity.class);
+                        intent.putExtra("booking", booking);
+                        intent.putExtra("payment_method", finalMethod);
+                        startActivity(intent);
+                        finish(); // Close this payment activity
+                    } else {
+                        btnConfirm.setEnabled(true);
+                        btnConfirm.setText("Xác nhận thanh toán");
+                        try {
+                            String errorStr = response.errorBody() != null ? response.errorBody().string() : "Lỗi không xác định";
+                            if (errorStr.contains("\"message\"")) {
+                                com.google.gson.JsonObject errorObj = com.google.gson.JsonParser.parseString(errorStr).getAsJsonObject();
+                                errorStr = errorObj.get("message").getAsString();
+                            }
+                            Toast.makeText(PaymentActivity.this, errorStr, Toast.LENGTH_LONG).show();
+                        } catch (Exception e) {
+                            Toast.makeText(PaymentActivity.this, "Lỗi đặt phòng trên hệ thống", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(retrofit2.Call<com.google.gson.JsonObject> call, Throwable t) {
+                    btnConfirm.setEnabled(true);
+                    btnConfirm.setText("Xác nhận thanh toán");
+                    Toast.makeText(PaymentActivity.this, "Lỗi kết nối mạng: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
         });
     }
 }

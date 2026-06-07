@@ -29,13 +29,18 @@ public class Booking implements Serializable {
     private String hotelLocation;
     private String roomNames;
     private String roomType;
+    
+    @com.google.gson.annotations.SerializedName("legacyCheckInDate")
     private String checkInDate;
+    
     private long bookingTime;
+    
+    private java.util.ArrayList<Long> roomIds;
 
     public Booking() {}
 
     public Booking(String hotelName, int hotelImageResId, String hotelLocation, String roomNames,
-                   String roomType, String checkInDate, double totalPrice, long bookingTime) {
+                   String roomType, String checkInDate, double totalPrice, long bookingTime, java.util.ArrayList<Long> roomIds) {
         this.hotelName = hotelName;
         this.hotelImageResId = hotelImageResId;
         this.hotelLocation = hotelLocation;
@@ -44,15 +49,45 @@ public class Booking implements Serializable {
         this.checkInDate = checkInDate;
         this.totalPrice = totalPrice;
         this.bookingTime = bookingTime;
+        this.roomIds = roomIds;
     }
 
-    public String getHotelName() { return hotelName; }
-    public int getHotelImageResId() { return hotelImageResId; }
-    public String getHotelLocation() { return hotelLocation; }
-    public String getRoomNames() { return roomNames; }
-    public String getRoomType() { return roomType; }
-    public String getCheckInDate() { return checkInDate; }
-    public long getBookingTime() { return bookingTime; }
+    public java.util.ArrayList<Long> getRoomIds() { return roomIds; }
+    public void setRoomIds(java.util.ArrayList<Long> roomIds) { this.roomIds = roomIds; }
+
+    public String getHotelName() {
+        if (room != null && room.getHotel() != null) return room.getHotel().getName();
+        return hotelName;
+    }
+    public int getHotelImageResId() {
+        // Since backend doesn't send ImageResId, fallback to a default image if legacy isn't there
+        return hotelImageResId != 0 ? hotelImageResId : com.phuc.datvekhachsan.R.drawable.hotel;
+    }
+    public String getHotelLocation() {
+        if (room != null && room.getHotel() != null) return room.getHotel().getLocation();
+        return hotelLocation;
+    }
+    public String getRoomNames() {
+        if (room != null) return "Phòng " + room.getName();
+        return roomNames;
+    }
+    public String getRoomType() {
+        if (room != null) return room.getRoomType();
+        return roomType;
+    }
+    @com.google.gson.annotations.SerializedName("createdAt")
+    private Date createdAt;
+
+    public String getCheckInDate() {
+        if (checkInDateObj != null) {
+            return new java.text.SimpleDateFormat("EEE/dd/MMM", new java.util.Locale("vi", "VN")).format(checkInDateObj);
+        }
+        return checkInDate;
+    }
+    public long getBookingTime() {
+        if (createdAt != null) return createdAt.getTime();
+        return bookingTime;
+    }
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }

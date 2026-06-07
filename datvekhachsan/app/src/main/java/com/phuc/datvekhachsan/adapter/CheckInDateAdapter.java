@@ -17,9 +17,16 @@ public class CheckInDateAdapter extends RecyclerView.Adapter<CheckInDateAdapter.
     private final List<String> dates;
     private int selectedPosition = -1;
     private int lastSelectedPosition = -1;
+    private final OnDateSelectedListener listener;
 
-    public CheckInDateAdapter(List<String> dates) {
+    public interface OnDateSelectedListener {
+        void onDateSelected(int position, String date);
+    }
+
+    public CheckInDateAdapter(List<String> dates, OnDateSelectedListener listener) {
         this.dates = dates;
+        this.listener = listener;
+        this.selectedPosition = 0; // Default to today
     }
 
     public boolean hasSelection() {
@@ -31,6 +38,10 @@ public class CheckInDateAdapter extends RecyclerView.Adapter<CheckInDateAdapter.
             return dates.get(selectedPosition);
         }
         return null;
+    }
+
+    public int getSelectedPosition() {
+        return selectedPosition;
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -68,6 +79,9 @@ public class CheckInDateAdapter extends RecyclerView.Adapter<CheckInDateAdapter.
                     selectedPosition = pos;
                     notifyItemChanged(lastSelectedPosition);
                     notifyItemChanged(selectedPosition);
+                    if (listener != null) {
+                        listener.onDateSelected(pos, dates.get(pos));
+                    }
                 }
             });
         }

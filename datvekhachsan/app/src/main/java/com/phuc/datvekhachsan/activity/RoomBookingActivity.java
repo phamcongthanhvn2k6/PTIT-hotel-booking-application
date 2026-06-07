@@ -41,6 +41,7 @@ public class RoomBookingActivity extends AppCompatActivity {
     private RoomGridAdapter roomGridAdapter;
     private int selectedRoomCount = 0;
     private String selectedRoomNamesStr = "";
+    private java.util.ArrayList<Long> selectedRoomIdsList = new java.util.ArrayList<>();
 
     private List<Room> allRooms = new ArrayList<>();
     private List<Room> filteredRooms = new ArrayList<>();
@@ -94,8 +95,13 @@ public class RoomBookingActivity extends AppCompatActivity {
             String username = com.phuc.datvekhachsan.util.AuthManager.getUsername(this);
 
             com.phuc.datvekhachsan.model.Booking booking = new com.phuc.datvekhachsan.model.Booking(
-                    hotelName, imageRes, location, selectedRoomNamesStr, rType, date, total, System.currentTimeMillis()
+                    hotelName, imageRes, location, selectedRoomNamesStr, rType, date, total, System.currentTimeMillis(), selectedRoomIdsList
             );
+            
+            int selectedOffset = checkInDateAdapter.getSelectedPosition();
+            LocalDate selectedDate = LocalDate.now().plusDays(selectedOffset);
+            booking.setCheckInDateObj(java.sql.Date.valueOf(selectedDate.toString()));
+            booking.setCheckOutDateObj(java.sql.Date.valueOf(selectedDate.plusDays(1).toString()));
 
             // Go to payment activity
             Intent intent = new Intent(RoomBookingActivity.this, PaymentActivity.class);
@@ -127,7 +133,9 @@ public class RoomBookingActivity extends AppCompatActivity {
         for (int i = 0; i < 14; i++) {
             dates.add(today.plusDays(i).format(formatter));
         }
-        checkInDateAdapter = new CheckInDateAdapter(dates);
+        checkInDateAdapter = new CheckInDateAdapter(dates, (position, date) -> {
+            fetchRoomsForSelectedDate();
+        });
         dateRecycler.setAdapter(checkInDateAdapter);
     }
 
@@ -157,9 +165,10 @@ public class RoomBookingActivity extends AppCompatActivity {
         double pricePerRoom = (hotel != null) ? hotel.getPricePerNight() : 1000000;
         NumberFormat formatter = NumberFormat.getInstance(new Locale("vi", "VN"));
 
-        roomGridAdapter = new RoomGridAdapter(filteredRooms, (selectedNames, count) -> {
+        roomGridAdapter = new RoomGridAdapter(filteredRooms, (selectedNames, selectedIds, count) -> {
             selectedRoomNamesStr = selectedNames;
             selectedRoomCount = count;
+            selectedRoomIdsList = selectedIds;
             numberSelectedTxt.setText(getString(R.string.selected_rooms_count_format, count));
             double total = count * pricePerRoom;
             totalPriceTxt.setText(getString(R.string.price_currency_format, formatter.format(total)));
@@ -167,27 +176,50 @@ public class RoomBookingActivity extends AppCompatActivity {
         roomRecycler.setAdapter(roomGridAdapter);
 
         if (hotel != null && hotel.getId() != null) {
-            ApiService apiService = RetrofitClient.getClient(this).create(ApiService.class);
-            apiService.getRoomsByHotelId(hotel.getId()).enqueue(new Callback<List<Room>>() {
-                @Override
-                public void onResponse(Call<List<Room>> call, Response<List<Room>> response) {
-                    if (response.isSuccessful() && response.body() != null) {
-                        allRooms.clear();
-                        allRooms.addAll(response.body());
-                        applyFilters();
-                    } else {
-                        Toast.makeText(RoomBookingActivity.this, "Không thể tải danh sách phòng", Toast.LENGTH_SHORT).show();
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<List<Room>> call, Throwable t) {
-                    Toast.makeText(RoomBookingActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            });
+            fetchRoomsForSelectedDate();
         } else {
             Toast.makeText(this, "Lỗi: Khách sạn không hợp lệ!", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void fetchRoomsForSelectedDate() {
+        if (hotel == null || hotel.getId() == null) return;
+
+        String checkInDateStr = null;
+        if (checkInDateAdapter != null && checkInDateAdapter.hasSelection()) {
+            int selectedOffset = checkInDateAdapter.getSelectedPosition();
+            LocalDate selectedDate = LocalDate.now().plusDays(selectedOffset);
+            checkInDateStr = selectedDate.toString(); // "yyyy-MM-dd"
+        }
+
+        ApiService apiService = RetrofitClient.getClient(this).create(ApiService.class);
+        apiService.getRoomsByHotelId(hotel.getId(), checkInDateStr).enqueue(new Callback<List<Room>>() {
+            @Override
+            public void onResponse(Call<List<Room>> call, Response<List<Room>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    allRooms.clear();
+                    allRooms.addAll(response.body());
+                    // Clear current selection as rooms have refreshed
+                    selectedRoomNamesStr = "";
+                    selectedRoomCount = 0;
+                    selectedRoomIdsList.clear();
+                    
+                    TextView totalPriceTxt = findViewById(R.id.totalPriceTxt);
+                    TextView numberSelectedTxt = findViewById(R.id.numberSelectedTxt);
+                    if (numberSelectedTxt != null) numberSelectedTxt.setText(getString(R.string.selected_rooms_count_format, 0));
+                    if (totalPriceTxt != null) totalPriceTxt.setText(getString(R.string.price_currency_format, "0"));
+                    
+                    applyFilters();
+                } else {
+                    Toast.makeText(RoomBookingActivity.this, "Không thể tải danh sách phòng", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Room>> call, Throwable t) {
+                Toast.makeText(RoomBookingActivity.this, "Lỗi kết nối: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void initFloorFilter() {
